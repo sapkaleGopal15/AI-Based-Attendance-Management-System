@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="content">
+
+        <div class="main-content">
+
+            <h1>📚 Manage Lectures</h1>
+
+            <div class="topbar">
+
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by subject, classroom...">
+                </div>
+
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Subject</th>
+                            <th>Class</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="lect, l : ${lectures}">
+                            <td>[[${l.count}]]</td>
+                            <td>[[${lect.subject}]]</td>
+                            <td>[[${lect.classroom}]]</td>
+                            <td>[[${lect.date}]]</td>
+                            <td>[[${lect.startTime}]]</td>
+                            <td>
+                                <a th:href="@{'/teacher/lectures/attendance/' + ${lect.id}}" class="view-btn">View Attendance</a>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+                <p id="noData" style="display:none; text-align:center; color:#dc2626; margin-top:15px;">
+                    No Lecture found
+                </p>
+            </div>
+
+        </div>
+
+        <script>
+            document.getElementById("searchInput").addEventListener("keyup", function () {
+
+                let filter = this.value.toLowerCase();
+                let rows = document.querySelectorAll("table tbody tr");
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    let rowText = row.innerText.toLowerCase();
+
+                    if (rowText.includes(filter)) {
+                        row.style.display = "";
+                        visibleCount++;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
+                document.getElementById("noData").style.display =
+                    visibleCount === 0 ? "block" : "none";
+            });
+        </script>
+
+        <style>
+
+            .main-content {
+                margin-left: 180px;   
+                margin-top: 10px;     
+                padding: 25px;
+                background: #f4f7fc;
+                min-height: 100vh;
+            }
+
+            h1 {
+                font-size: 28px;
+                margin-bottom: 20px;
+            }
+
+            .topbar {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .search-box {
+                position: relative;
+                flex: 1;
+            }
+
+            .search-box i {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: gray;
+            }
+
+            .search-box input {
+                width: 100%;
+                padding: 10px 10px 10px 35px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+            }
+
+            .filter-dropdown {
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+            }
+
+            .add-btn {
+                background: #1668ec;
+                color: white;
+                padding: 10px 18px;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+            }
+
+            .add-btn:hover {
+                background: #0f4fc4;
+            }
+
+            .table-container {
+                background: white;
+                border-radius: 10px;
+                overflow: auto;
+                max-height: 500px;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 900px;
+            }
+
+            thead {
+                position: sticky;
+                top: 0;
+                background: #1668ec;
+                color: white;
+            }
+
+            th, td {
+                padding: 12px;
+                text-align: left;
+                white-space: nowrap;
+            }
+
+            tbody tr:hover {
+                background: #f5f8ff;
+            }
+
+            .view-btn {
+                display: inline-block;
+                padding: 6px 12px;
+                background: #e8f0fe;
+                color: #1668ec;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                text-decoration: none;
+                transition: 0.2s;
+            }
+
+            .view-btn:hover {
+                background: #1668ec;
+                color: white;
+            }
+
+        </style>
+
+    </div>
+</body>
+</html>

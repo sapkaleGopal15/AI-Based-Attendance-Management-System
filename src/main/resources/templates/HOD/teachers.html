@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Teachers</title>
+</head>
+
+<body>
+<div id="content">
+
+<div class="container">
+
+    <div th:if="${successMsg}" class="toast success" th:text="${successMsg}"></div>
+
+    <div th:if="${errorMsg}" class="toast error" th:text="${errorMsg}"></div>
+
+    <div class="main">
+
+        <div class="page-header">
+            <h2>Teachers Management</h2>
+            <p>View and update teacher details</p>
+        </div>
+
+        <div class="teacher-grid">
+
+            <div class="teacher-card" th:each="t : ${teachers}">
+
+                <div class="card-top">
+                    <i class="fas fa-user-tie"></i>
+                    <h3>Prof. [[${t.name}]]</h3>
+                </div>
+
+                <div class="card-body">
+                    <p><strong>Email:</strong> [[${t.email}]]</p>
+                    <p><strong>Department:</strong> [[${t.department}]]</p>
+                    <p><strong>Mobile:</strong> [[${t.contact}]]</p>
+                </div>
+
+                <div class="card-actions">
+                    <a th:href="@{'/hod/update-teacher/' + ${t.id}}" class="btn-update">
+                        Update Teacher
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f6f9;
+}
+
+.container {
+    display: flex;
+    margin-top: 20px;
+}
+
+.main {
+    flex: 1;
+    margin-left: 180px;
+    padding: 25px;
+}
+
+.page-header {
+    margin-bottom: 25px;
+}
+
+.page-header h2 {
+    font-size: 24px;
+}
+
+.page-header p {
+    color: gray;
+}
+
+.teacher-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.teacher-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.teacher-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-top {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.card-top i {
+    font-size: 40px;
+    color: #2563eb;
+    margin-bottom: 10px;
+}
+
+.card-top h3 {
+    font-size: 18px;
+}
+
+.card-body p {
+    font-size: 14px;
+    margin: 6px 0;
+}
+
+.card-actions {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.btn-update {
+    display: inline-block;
+    padding: 8px 15px;
+    background: #2563eb;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn-update:hover {
+    background: #1e40af;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    color: white;
+    border-radius: 6px;
+}
+
+.success { background: green; }
+.error { background: red; }
+
+</style>
+
+</div>
+</body>
+</html>

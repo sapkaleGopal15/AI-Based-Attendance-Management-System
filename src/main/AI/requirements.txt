@@ -1,0 +1,6 @@
+flask
+torch
+facenet-pytorch
+pillow
+numpy
+opencv-python

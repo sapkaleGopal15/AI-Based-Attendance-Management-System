@@ -1,0 +1,124 @@
+<div th:fragment="footer">
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section">
+                <h2 class="footer-logo">SmartScan AI</h2>
+                <p>
+                    AI-based Attendance Management System designed to automate and simplify
+                    student attendance using face recognition technology.
+                </p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a th:href="@{/}">Home</a></li>
+                    <li><a th:href="@{/about}">About</a></li>
+                    <li><a th:href="@{/contact}">Contact</a></li>
+                    <li><a th:href="@{/login}">Login</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>System Modules</h3>
+                <ul>
+                    <li><a th:href="@{/login}">Student Management</a></li>
+                    <li><a th:href="@{/login}">Faculty Dashboard</a></li>
+                    <li><a th:href="@{/login}">Attendance Tracking</a></li>
+                    <li><a th:href="@{/login}">Reports & Analytics</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: sapkalegopal8806@gmail.com</p>
+                <p>Phone: +91 74980 50364</p>
+                <p>Location: Chopda, Jalgaon, Maharashtra, India</p>
+
+                <div class="social-icons">
+                    <a href="#">🌐</a>
+                    <a href="#">💼</a>
+                    <a href="#">📧</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 SmartScan AI | All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <style>
+        .footer {
+            background: #0f172a;
+            color: #cbd5e1;
+            padding: 50px 6% 20px;
+            font-family: 'Segoe UI', sans-serif;
+            margin-top: 10px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .footer-logo {
+            font-size: 22px;
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .footer-section p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-section ul li a {
+            text-decoration: none;
+            color: #cbd5e1;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #38bdf8;
+        }
+
+        .social-icons {
+            margin-top: 10px;
+        }
+
+        .social-icons a {
+            margin-right: 10px;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #334155;
+            margin-top: 30px;
+            padding-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+
+</div>

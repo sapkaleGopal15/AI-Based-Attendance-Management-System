@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Attendance</title>
+</head>
+<body>
+<div id="content">
+<div class="main-content">
+    <h1>📊 <span th:text="${student.name}"></span> <span th:text="${student.classroom}"></span> Attendance Report</h1>
+
+    <div class="card">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by lecture or status ...">
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Lecture</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="att, a : ${attendances}">
+                        <td>[[${a.count}]]</td>
+                        <td>
+                            <th:block th:if="${att.subject == ''}">
+                                <span>-</span>
+                            </th:block>
+                            <th:block th:unless="${att.subject == ''}">
+                                <span>[[${att.subject}]]</span>
+                            </th:block>
+                        </td>
+                        <td>[[${att.date}]]</td>
+                        <td>
+                            <th:block th:if="${att.status == 'NOT_PRESENT'}">
+                                <span>-</span>
+                            </th:block>
+                            <th:block th:unless="${att.status == ''}">
+                                <span>[[${att.time}]]</span>
+                            </th:block>
+                        </td>
+                        <td>
+                            <th:block th:if="${att.status == 'PRESENT'}">
+                                <span class="status present">Present</span>
+                            </th:block>
+                            <th:block th:unless="${att.status == 'PRESENT'}">
+                                <span class="status absent">Absent</span>
+                            </th:block>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="noData" style="display:none; text-align:center; color:#dc2626; margin-top:15px;">
+                No Lecture found
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+        
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("table tbody tr");
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            let rowText = row.innerText.toLowerCase();
+
+            if (rowText.includes(filter)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        document.getElementById("noData").style.display =
+            visibleCount === 0 ? "block" : "none";
+    });
+</script>
+
+<style>
+        .main-content {
+            margin-left: 200px;   
+            margin-top: 10px;     
+            padding: 25px;
+        }
+
+        h1 {
+            text-align: left;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            padding: 8px 14px;
+            background: #1668ec;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #0f4fc4;
+        }
+
+.search-box {
+    display: flex;
+    justify-content: space-between;  
+    align-items: center;
+    gap: 15px;
+
+    position: sticky;
+    top: 0;
+    z-index: 5;
+
+    background: #fff;
+    padding: 10px 0;
+}
+
+.search-box input[type="text"] {
+    flex: 1;  
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.search-box input[type="date"] {
+    width: 180px;  
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #1668ec;
+    box-shadow: 0 0 0 2px rgba(22,104,236,0.15);
+}
+
+.search-box i {
+    position: absolute;
+}
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; 
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background: #1668ec;
+            color: white;
+            z-index: 2;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        tbody tr:hover {
+            background: #f5f8ff;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .present {
+            background: #28a745;
+        }
+
+        .absent {
+            background: #dc3545;
+        }
+
+        .card {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        @media(max-width: 768px) {
+
+            .main-content {
+                margin-left: 150px;
+                padding: 15px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+        }
+    </style>
+</div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College | Profile</title>
+</head>
+<body>
+<div id="content">
+
+    <div th:if="${successMsg}"
+        class="toast success"
+        th:text="${successMsg}">
+    </div>
+
+    <div th:if="${errorMsg}"
+        class="toast error"
+        th:text="${errorMsg}">
+    </div>
+
+    <div class="main-content">
+
+        <div class="profile-card">
+
+            <div class="profile-left">
+                <img src="https://cdn-icons-png.flaticon.com/512/8074/8074809.png" alt="college">
+
+                <div>
+                    <h2>[[${college.name}]]</h2>
+                    <p class="role">Affiliated to [[${college.university}]]</p>
+                </div>
+            </div>
+
+            <div class="profile-right">
+                <a th:href="@{'/college/update-profile/' +${college.id}}" class="update-btn">
+                    ✏️ Update Profile
+                </a>
+            </div>
+
+        </div>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>[[${totalStudents}]]</h3>
+                <p>Total Students</p>
+            </div>
+
+            <div class="card">
+                <h3>[[${totalTeachers}]]</h3>
+                <p>Total Teachers</p>
+            </div>
+
+            <div class="card">
+                <h3>[[${totalDepartments}]]</h3>
+                <p>Departments</p>
+            </div>
+
+            <div class="card">
+                <h3>[[${college.date}]]</h3>
+                <p>Established</p>
+            </div>
+
+        </div>
+
+        <div class="details-card">
+
+            <h3>College Information</h3>
+
+            <div class="details-grid">
+
+                <div>
+                    <label>College Name</label>
+                    <p>[[${college.name}]]</p>
+                </div>
+
+                <div>
+                    <label>University</label>
+                    <p>[[${college.university}]]</p>
+                </div>
+
+                <div>
+                    <label>College Id</label>
+                    <p>[[${college.collegeId}]]</p>
+                </div>
+
+                <div>
+                    <label>Email</label>
+                    <p>[[${college.email}]]</p>
+                </div>
+
+                <div>
+                    <label>Address</label>
+                    <p>[[${college.address}]]</p>
+                </div>
+
+                <div>
+                    <label>Principal</label>
+                    <p>Dr. [[${college.principle}]]</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <style>
+        .main-content {
+            margin-left: 190px;
+            margin-top: 30px;
+            padding: 25px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            animation: fade 3s forwards;
+            z-index: 99999;
+        }
+
+        .success {
+            background: green;
+        }
+
+        .error {
+            background: red;
+        }
+
+        .profile-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .profile-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-left img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+        }
+
+        .profile-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .update-btn {
+            background: linear-gradient(135deg, #1668ec, #4a90e2);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(22, 104, 236, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .update-btn:hover {
+            background: linear-gradient(135deg, #0f4fc4, #357bd8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(22, 104, 236, 0.4);
+        }
+
+        .update-btn:active {
+            transform: scale(0.97);
+        }
+
+        .role {
+            color: gray;
+            font-size: 14px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            color: #1668ec;
+            font-size: 24px;
+        }
+
+        .details-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .details-card h3 {
+            margin-bottom: 15px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .details-grid label {
+            font-size: 13px;
+            color: gray;
+        }
+
+        .details-grid p {
+            font-weight: 500;
+        }
+
+        @media(max-width: 768px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                margin-left: 150px;
+            }
+        }
+    </style>
+
+</div>
+</body>
+</html>

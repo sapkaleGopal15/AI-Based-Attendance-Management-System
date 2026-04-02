@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Register Student | SmartScan AI</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+    <div id="content">
+    <div th:if="${successMsg}" class="toast success" id="toast" th:text="${successMsg}"></div>
+
+    <div th:if="${errorMsg}" class="toast error" id="toast" th:text="${errorMsg}"></div>
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="camera-box">
+
+                <h3>Capture Face</h3>
+
+                <video id="video" autoplay playsinline></video>
+
+                <button class="capture-btn" id="captureBtn" onclick="captureFace()">
+                    <i class="fa fa-camera"></i> Capture Face
+                </button>
+
+                <img id="preview" class="preview" style="display:none">
+
+                <div class="status" id="status"></div>
+
+            </div>
+
+            <div class="form-box">
+
+                <h3>Student Information</h3>
+
+                <form id="registerForm" method="post" th:action="@{/teacher/add-student}" enctype="multipart/form-data">
+
+                    <input type="text" name="name" placeholder="Full Name" required>
+
+                    <input type="number" name="rollNo" placeholder="Roll Number" required>
+
+                    <input type="text" name="classroom" placeholder="Class" required>
+
+                    <input type="text" name="course" placeholder="Course" required>
+
+                    <input type="number" name="contact" placeholder="Mobile Number" required>
+
+                    <input type="file" id="fileInput" name="file" hidden>
+
+                    <div class="buttons">
+
+                        <button class="register-btn" id="registerBtn" type="submit" disabled>
+                            Register
+                        </button>
+
+                        <button type="button" class="cancel-btn" onclick="confirmCancel()">
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+
+        const video = document.getElementById("video")
+        const preview = document.getElementById("preview")
+        const status = document.getElementById("status")
+        const fileInput = document.getElementById("fileInput")
+        const registerBtn = document.getElementById("registerBtn")
+        const captureBtn = document.getElementById("captureBtn")
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream)
+            .catch(() => alert("Camera permission denied"))
+
+        function confirmCancel() {
+
+            if (confirm("Cancel registration?")) {
+
+                window.location.href = "/teacher/"
+
+            }
+
+        }
+
+
+        function captureFace() {
+
+            if (!video.videoWidth) {
+                alert("Camera not ready")
+                return
+            }
+
+            captureBtn.disabled = true
+
+            const canvas = document.createElement("canvas")
+
+            canvas.width = video.videoWidth
+            canvas.height = video.videoHeight
+
+            const ctx = canvas.getContext("2d")
+
+            ctx.drawImage(video, 0, 0)
+
+            canvas.toBlob(function (blob) {
+
+                const file = new File([blob], "face.jpg", { type: "image/jpeg" })
+
+                const container = new DataTransfer()
+                container.items.add(file)
+                fileInput.files = container.files
+
+                preview.src = URL.createObjectURL(blob)
+                preview.style.display = "block"
+
+                status.innerHTML = "Checking face..."
+                status.style.color = "black"
+
+                const formData = new FormData()
+                formData.append("file", file)
+
+                fetch("/teacher/check-face", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+
+                        captureBtn.disabled = false;
+
+                        if (data.multiple_faces) {
+                            status.innerHTML = "⚠ Multiple faces detected. Only one face allowed";
+                            status.style.color = "red";
+                            registerBtn.disabled = true;
+                            return;
+                        }
+
+                        if (!data.face_detected) {
+                            status.innerHTML = "⚠ No face detected";
+                            status.style.color = "red";
+                            registerBtn.disabled = true;
+                            return;
+                        }
+
+                        if (data.blur) {
+                            status.innerHTML = "⚠ Image is blurry. Stay steady";
+                            status.style.color = "orange";
+                            registerBtn.disabled = true;
+                            return;
+                        }
+
+                        if (!data.eyes) {
+                            status.innerHTML = "⚠ Eyes not detected properly. Look at camera";
+                            status.style.color = "orange";
+                            registerBtn.disabled = true;
+                            return;
+                        }
+
+                        if (data.duplicate) {
+                            status.innerHTML = "⚠ Already registered as " + data.name;
+                            status.style.color = "red";
+                            registerBtn.disabled = true;
+                            return;
+                        }
+
+                        if (data.reason === "face_too_small") {
+                            status.innerHTML = "⚠ Face is too small. Move closer";
+                            status.style.color = "orange";
+                            registerBtn.disabled = true;
+                            return;
+                        }
+
+                        status.innerHTML = "✅ Face verified successfully";
+                        status.style.color = "green";
+                        registerBtn.disabled = false;
+                    })
+                    .catch(() => {
+
+                        captureBtn.disabled = false
+                        status.innerHTML = "Server error"
+                        status.style.color = "red"
+
+                    })
+
+            })
+
+        }
+
+        setTimeout(() => {
+
+            const toast = document.getElementById("toast")
+
+            if (toast) {
+                toast.style.display = "none"
+            }
+
+        }, 3000)
+
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            margin-left: 180px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            color: black;
+            width: 900px;
+            padding: 30px;
+            border-radius: 12px;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .camera-box {
+            width: 50%;
+            text-align: center;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+            border: 3px solid #2563eb;
+        }
+
+        .capture-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .preview {
+            margin-top: 10px;
+            width: 120px;
+            border-radius: 10px;
+            border: 2px solid #2563eb;
+        }
+
+        .form-box {
+            width: 50%;
+        }
+
+        .form-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .register-btn {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background: #64748b;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            flex: 1;
+            cursor: pointer;
+        }
+        .status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            color: white;
+            border-radius: 6px;
+            font-size: 15px;
+            z-index: 9999;
+            animation: slide 0.4s ease;
+        }
+
+        .success {
+            background: #16a34a;
+        }
+
+        .error {
+            background: #dc2626;
+        }
+
+        @keyframes slide {
+            from {
+                transform: translateX(100px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1
+            }
+        }
+    </style>
+
+    </div>
+</body>
+
+</html>

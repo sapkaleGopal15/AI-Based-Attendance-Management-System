@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content},~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartScan AI - Attendance System</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="content">
+    <div th:if="${successMsg}"
+        class="toast success"
+        th:text="${successMsg}">
+    </div>
+
+    <div th:if="${errorMsg}"
+        class="toast error"
+        th:text="${errorMsg}">
+    </div>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>
+                SmartScan AI Attendance For <br>
+                <span>Modern Colleges</span>
+            </h1>
+            <p>
+                Say goodbye to manual calls. Automate your college attendance
+                with our Secure SmartScan AI.
+            </p>
+
+            <a th:href="@{/college-login}"><button class="cta-btn">Get Started</button></a>
+        </div>
+    </header>
+
+    <section class="about-section">
+        <div class="container">
+            <h2 class="section-title">Our <span>Mission</span></h2>
+
+            <p class="mission-text">
+                Our objective is to transform the traditional attendance system
+                in educational institutions by replacing it with an AI-powered
+                Face Recognition System that is digital, fast & efficient.
+                We have developed a fully contactless & secure solution that
+                ensures accurate attendance management while saving time
+                & reducing manual effort.
+            </p>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It <span>Works</span></h2>
+
+            <div class="works-grid">
+
+                <div class="work-card">
+                    <div class="icon" style="font-size: 3rem; margin-bottom: 20px;">👤</div>
+                    <h3>Face Registration</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">
+                        Enroll student biometrics securely in our encrypted database.
+                    </p>
+                </div>
+
+                <div class="work-card">
+                    <div class="icon" style="font-size: 3rem; margin-bottom: 20px;">🔍</div>
+                    <h3>Instant Face Scan</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">
+                        High-speed scanning at classroom entry points.
+                    </p>
+                </div>
+
+                <div class="work-card">
+                    <div class="icon" style="font-size: 3rem; margin-bottom: 20px;">📋</div>
+                    <h3>Automated Attendance</h3>
+                    <p style="color: var(--text-muted); margin-top: 10px;">
+                        Real-time logs generated and synced with college portals.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="why-choose">
+        <div class="container">
+            <h2 class="section-title">Why <span>Choose Us</span></h2>
+
+            <div class="features-list">
+                <div class="feature-item"><i class="fas fa-bolt"></i> Accuracy & Speed</div>
+                <div class="feature-item"><i class="fas fa-shield-halved"></i> Security</div>
+                <div class="feature-item"><i class="fas fa-link"></i> Seamless Integration</div>
+                <div class="feature-item"><i class="fas fa-clock"></i> Time Saving</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact-container">
+        <div class="container">
+
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h1 class="section-title">Get In <span>Touch</span></h1>
+                <p style="color: var(--text-muted);">
+                    We're here to help. Reach out to us for any inquiries.
+                </p>
+            </div>
+
+            <div class="contact-form-card">
+                <form action="#">
+
+                    <div class="form-row">
+                        <div class="input-box">
+                            <label><i class="fas fa-user"></i> Full Name</label>
+                            <input type="text" placeholder="Enter your name" required>
+                        </div>
+
+                        <div class="input-box">
+                            <label><i class="fas fa-envelope"></i> Email Address</label>
+                            <input type="email" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+
+                    <div class="input-box">
+                        <label>Subject</label>
+                        <input type="text" placeholder="Subject of your message" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label><i class="fas fa-comment-alt"></i> Message</label>
+                        <textarea rows="5" placeholder="Tell us your query..."></textarea>
+                    </div>
+
+                    <button type="submit" class="copilot-btn">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+
+                    <div style="margin-top: 20px; font-size: 0.9rem; color: #10b981; text-align: center;">
+                        <i class="fas fa-check-circle"></i> We'll respond within 24 hours
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

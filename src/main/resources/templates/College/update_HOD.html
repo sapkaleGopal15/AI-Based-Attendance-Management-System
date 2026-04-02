@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | SmartScan AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+    <div id="content">
+
+    <div th:if="${successMsg}"
+        class="toast success"
+        th:text="${successMsg}">
+    </div>
+
+    <div th:if="${errorMsg}"
+        class="toast error"
+        th:text="${errorMsg}">
+    </div>
+
+    <section class="login-section">
+        <div class="login-card">
+
+            <h2>Update Your <span>Account</span></h2>
+            <p class="login-subtext">
+                Update to start using SmartScan AI
+            </p>
+
+            <form th:action="@{/college/do-update-teacher}" method="post" th:object="${hod}">
+
+                <input type="hidden" th:field="*{id}"> 
+                <div class="input-box">
+                    <label>Full Name</label>
+                    <input type="text" th:field="*{name}" placeholder="Enter HOD full name" required>
+                    <p class="hasErrors" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                </div>
+
+                <div class="input-box">
+                    <label>Email Address</label>
+                    <input type="email" th:field="*{email}" placeholder="Enter HOD email" readonly required>
+                    <p class="hasErrors" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                </div>
+
+                <div class="input-box">
+                    <label>Department</label>
+                    <input type="text" th:field="*{department}" placeholder="Enter HOD department" required>
+                    <p class="hasErrors" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></p>
+                </div>
+
+                <div class="input-box">
+                    <label>Role</label>
+                    <select th:field="*{role}" id="">
+                        <option value="">Select Teacher Role</option>
+                        <option value="HOD">Head of Department</option>
+                        <option value="teacher">Faculty Member</option>
+                    </select>
+                    <p class="hasErrors" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></p>
+                </div>
+
+                <div class="input-box">
+                    <label>Mobile</label>
+                    <input type="tel" th:field="*{contact}" placeholder="Enter HOD mobile number" minlength="10" maxlength="10" required>
+                    <p class="hasErrors" th:if="${#fields.hasErrors('contact')}" th:errors="*{contact}"></p>
+                </div>
+
+                <button type="submit" class="copilot-btn">
+                    <i class="fas fa-user-plus"></i> Register
+                </button>
+
+            </form>
+
+        </div>
+    </section>
+
+    <style>
+
+:root {
+    --primary-color: #0078d4;
+    --bg-light: #f3f6f9;
+    --card-bg: #ffffff;
+    --text-main: #201f1e;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+}
+
+.login-section {
+    margin-top: 20px;
+    margin-left: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-card {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: var(--shadow);
+}
+
+.input-box {
+    margin-bottom: 20px;
+}
+
+.input-box label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: var(--transition);
+}
+
+.input-box input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+}
+
+.copilot-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.login-links {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.login-links a {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.hasErrors {
+    color: red;
+    font-size: small;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    color: white;
+    border-radius: 6px;
+    font-size: 16px;
+    animation: fade 3s forwards;
+    z-index: 99999;
+}
+
+.success {
+    background: green;
+}
+
+.error {
+    background: red;
+}
+
+@keyframes fade {
+    0% {opacity:1;}
+    80% {opacity:1;}
+    100% {opacity:0;}
+}
+    </style>
+
+    </div>
+</body>
+</html>

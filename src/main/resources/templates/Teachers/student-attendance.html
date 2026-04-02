@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students | SmartScan AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+</head>
+<body>
+    <div id="content">
+
+    <div th:if="${successMsg}"
+        class="toast success"
+        th:text="${successMsg}">
+    </div>
+
+    <div th:if="${errorMsg}"
+        class="toast error"
+        th:text="${errorMsg}">
+    </div>
+<div class="main-content">
+
+    <h1>Manage Students</h1>
+
+    <div class="student-topbar">
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by name by roll no by class ...">
+        </div>
+
+    </div>
+
+    <div class="student-table-container">
+        <table class="student-table">
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Name</th>
+                    <th>Roll No</th>
+                    <th>Course</th>
+                    <th>Class</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentTableBody">
+
+                <tr th:each="std, s: ${students}">
+                    <td>[[${s.count}]]</td>
+                    <td>[[${std.name}]]</td>
+                    <td>[[${std.rollNo}]]</td>
+                    <td>[[${std.course}]]</td>
+                    <td>[[${std.classroom}]]</td>
+                    <td>
+                        <a th:href="@{'/teacher/student-view-attendance/' + ${std.id}}" class="view-btn">View Attendance</a>
+                    </td>
+                </tr>
+
+                
+
+            </tbody>
+        </table>
+        <p id="noData" style="display:none; text-align:center; color:#dc2626; margin-top:15px;">
+            No student found
+        </p>
+    </div>
+
+</div>
+
+    <div id="attendanceModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
+
+        <div style="background:white; padding:30px; border-radius:10px; width:300px; text-align:center;">
+
+            <h3>Select Attendance Mode</h3>
+
+            <button onclick="" style="margin:10px; padding:10px; width:100%;">
+                Continue Previous
+            </button>
+
+            <button onclick="showNewForm()" style="margin:10px; padding:10px; width:100%;">
+                Start New Lecture
+            </button>
+
+            <div id="newLectureForm" style="display:none;">
+                <input type="text" id="subject" placeholder="Enter Subject" style="margin:5px; width:100%; padding:8px;">
+                <input type="text" id="classroom" placeholder="Enter Classroom" style="margin:5px; width:100%; padding:8px;">
+
+                <button onclick="startNewAttendance()" style="margin-top:10px; padding:10px; width:100%;">
+                    Start
+                </button>
+            </div>
+
+            <button onclick="closeModal()" style="margin-top:10px;">Cancel</button>
+
+        </div>
+    </div>
+
+    <script>
+
+        
+        document.getElementById("searchInput").addEventListener("keyup", function () {
+
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("table tbody tr");
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            let rowText = row.innerText.toLowerCase();
+
+            if (rowText.includes(filter)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        document.getElementById("noData").style.display =
+            visibleCount === 0 ? "block" : "none";
+    });
+
+
+
+        function openAttendanceModal(){
+            document.getElementById("attendanceModal").style.display = "flex";
+        }
+
+        function closeModal(){
+            document.getElementById("attendanceModal").style.display = "none";
+        }
+
+        function showNewForm(){
+            document.getElementById("newLectureForm").style.display = "block";
+        }
+
+
+        function continueAttendance(){
+
+            fetch("/api/attendance/start", {
+                method:"POST",
+                headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+                body:"mode=CONTINUE"
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                localStorage.setItem("lectureId", data.lectureId);
+                window.location.href="/teacher/start-attendance";
+            });
+        }
+
+    
+        function startNewAttendance(){
+
+            let subject = document.getElementById("subject").value;
+            let classroom = document.getElementById("classroom").value;
+
+            fetch("/api/attendance/start", {
+                method:"POST",
+                headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+                body:`subject=${subject}&classroom=${classroom}&mode=NEW`
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                localStorage.setItem("lectureId", data.lectureId);
+                window.location.href="/teacher/start-attendance";
+            });
+        }
+    </script>
+    
+
+    <style>
+
+.view-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e8f0fe;
+    color: #1668ec;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.view-btn:hover {
+    background: #1668ec;
+    color: white;
+}
+
+.main-content {
+    margin-left: 200px;  
+    margin-top: 10px;     
+    padding: 25px;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.student-topbar {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    position: relative;
+    width: 100%;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.search-box i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.filter-dropdown {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.student-table-container {
+    width: 100%;
+    max-height: 500px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.student-table thead {
+    position: sticky;
+    top: 0;
+    background: #1668ec;
+    color: white;
+}
+
+.student-table th,
+.student-table td {
+    padding: 12px;
+}
+
+.student-table tbody tr:hover {
+    background: #f5f8ff;
+}   
+    </style>
+
+    </div>
+</body>
+</html>

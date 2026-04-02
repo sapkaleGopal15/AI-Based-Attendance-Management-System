@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students | SmartScan AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+</head>
+<body>
+    <div id="content">
+
+    <div th:if="${successMsg}"
+        class="toast success"
+        th:text="${successMsg}">
+    </div>
+
+    <div th:if="${errorMsg}"
+        class="toast error"
+        th:text="${errorMsg}">
+    </div>
+<div class="main-content">
+
+    <h1>Manage Students</h1>
+
+    <div class="student-topbar">
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by name by roll no by class ...">
+        </div>
+
+    </div>
+
+    <div class="student-table-container">
+        <table class="student-table">
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Name</th>
+                    <th>Roll No</th>
+                    <th>Course</th>
+                    <th>Class</th>
+                    <th>Department</th>
+                    <th>Mobile</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentTableBody">
+
+                <tr th:each="std, s: ${students}">
+                    <td>[[${s.count}]]</td>
+                    <td>[[${std.name}]]</td>
+                    <td>[[${std.rollNo}]]</td>
+                    <td>[[${std.course}]]</td>
+                    <td>[[${std.classroom}]]</td>
+                    <td>[[${std.department}]]</td>
+                    <td>[[${std.contact}]]</td>
+                    <td>
+                        <a th:href="@{'/teacher/student-update/' +${std.id}}" class="action-btn edit-btn">Edit</a>
+                        <a th:href="@{'/teacher/student-delete/'+ ${std.id}}"
+                            onclick="return confirm('are you sure, You want to delete the student')"
+                            class="action-btn delete-btn">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+
+                
+
+            </tbody>
+        </table>
+        <p id="noData" style="display:none; text-align:center; color:#dc2626; margin-top:15px;">
+            No student found
+        </p>
+    </div>
+
+</div>
+
+    <script>
+
+        
+        document.getElementById("searchInput").addEventListener("keyup", function () {
+
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("table tbody tr");
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            let rowText = row.innerText.toLowerCase();
+
+            if (rowText.includes(filter)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        document.getElementById("noData").style.display =
+            visibleCount === 0 ? "block" : "none";
+    });
+
+    </script>
+    
+
+    <style>
+
+        .action-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            margin-right: 6px;
+            transition: 0.2s;
+        }
+
+        .edit-btn {
+            
+            color: #160bb1;
+        }
+
+        .edit-btn:hover {
+            background: #200eed;
+            color: white;
+        }
+
+        .delete-btn {
+            color: #dc2626;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            color: white;
+        }
+.main-content {
+    margin-left: 170px;   
+    margin-top: 10px;     
+    padding: 25px;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.student-topbar {
+    display: flex;
+    justify-content: flex-start; 
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    position: relative;
+    width: 680px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.search-box i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.filter-dropdown {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.student-table-container {
+    width: 100%;
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.student-table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+}
+
+.student-table thead {
+    position: sticky;
+    top: 0;
+    background: #1668ec;
+    color: white;
+}
+
+.student-table th,
+.student-table td {
+    padding: 12px;
+    white-space: nowrap;
+}
+
+.student-table tbody tr:hover {
+    background: #f5f8ff;
+}  
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            animation: fade 3s forwards;
+
+            z-index: 99999;
+        }
+
+        .success {
+            background: green;
+        }
+
+        .error {
+            background: red;
+        }
+    </style>
+
+    </div>
+</body>
+</html>

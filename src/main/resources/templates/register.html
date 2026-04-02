@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <title>College Registration</title>
+</head>
+<body>
+<div id="content">
+
+    <div th:if="${successMsg}"
+        class="toast success"
+        th:text="${successMsg}">
+    </div>
+
+    <div th:if="${errorMsg}"
+        class="toast error"
+        th:text="${errorMsg}">
+    </div>
+    <div class="register-wrapper">
+
+        <div class="form-box">
+            <h2>🏫 College Registration</h2>
+
+            <form th:action="@{/do-register}" th:object="${collegeDto}" method="post" novalidate>
+
+                <div class="input-group">
+                    <label>College/School Name</label>
+                    <input type="text" th:field="*{name}" placeholder="Enter college name" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>College/School ID</label>
+                    <input type="text" th:field="*{collegeId}" placeholder="Enter college ID" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('collegeId')}" th:errors="*{collegeId}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>College/School Address</label>
+                    <input type="text" th:field="*{address}" placeholder="Enter address" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>University</label>
+                    <input type="text" th:field="*{university}" placeholder="Enter university name" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('university')}" th:errors="*{university}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>College/School Email</label>
+                    <input type="email" th:field="*{email}" placeholder="Enter email" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>College/School Established</label>
+                    <input type="date" th:field="*{date}" id="dob" placeholder="Enter college established date" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>Principle</label>
+                    <input type="text" th:field="*{principle}" placeholder="Enter principle name" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('principle')}" th:errors="*{principle}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" th:field="*{password}" placeholder="Enter password" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                </div>
+
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <input type="password" th:field="*{confirmPass}" placeholder="Confirm password" required>
+                    <p class="hasError" th:if="${#fields.hasErrors('confirmPass')}" th:errors="*{confirmPass}"></p>
+                </div>
+
+                <button type="submit" class="btn">Register</button>
+
+            </form>
+        </div>
+
+    </div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f5f7fb;
+}
+
+.hasError {
+    font-size: small;
+    color: red;
+}
+
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;   
+    min-height: 100vh;
+    padding-top: 30px;        
+    padding-bottom: 50px;
+}
+
+.form-box {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    animation: fadeIn 0.6s ease;
+}
+
+.form-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #1668ec;
+    outline: none;
+    box-shadow: 0 0 6px rgba(22,104,236,0.3);
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: #1668ec;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #0f4fc4;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("dob").setAttribute("max", today);
+</script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" th:fragment="index(content,title)" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}">Document</title>
+    <link th:href="@{'/css/style.css'}" rel="stylesheet">
+
+</head>
+<body>
+    <div th:replace="~{fragments/navbar::navbar}"></div>
+
+    <div class="cont">
+        <section th:replace="${content}"></section>
+        <th:block th:if="${(session.authentication != null or session.college != null) and showSidebar}">
+            <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        </th:block>
+    </div>
+    <th:block th:if="${session.authentication == null and session.college == null}">
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </th:block>
+</body>
+</html>

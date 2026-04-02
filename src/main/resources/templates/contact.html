@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+<meta charset="UTF-8">
+<title>Contact | Smart Attendance AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+<div id="content">
+<div id="successMsg" class="toast success" style="display:none;">
+    Message Sent Successfully!
+</div>
+
+<div class="header">
+    <h1>Contact <span>Us</span></h1>
+    <p>Get in touch with our team</p>
+</div>
+
+<div class="contact-container">
+    <div class="contact-card">
+
+        <form id="contactForm">
+
+            <div class="input-box">
+                <label>Name</label>
+                <input type="text" id="name" required>
+            </div>
+
+            <div class="input-box">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="input-box">
+                <label>Message</label>
+                <textarea rows="4" id="message" required></textarea>
+            </div>
+
+            <button type="submit" class="btn">Send Message</button>
+
+        </form>
+
+        <div class="info">
+            📧 sapkalegopal8806@gmail.com <br>
+            📞 +91 7498050364
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+const form = document.getElementById("contactForm");
+const successMsg = document.getElementById("successMsg");
+
+form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    successMsg.style.display = "block";
+
+    setTimeout(()=>{
+        successMsg.style.display = "none";
+    },3000);
+
+    form.reset();
+});
+</script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+}
+
+.header{
+    text-align:center;
+    padding:60px 20px;
+    animation:fadeIn 1s ease;
+}
+
+.header h1 span{
+    color:#38bdf8;
+}
+
+.contact-container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:30px;
+}
+
+.contact-card{
+    background: rgba(255, 255, 255, 0.904);
+    backdrop-filter:blur(12px);
+    padding:30px;
+    border-radius:15px;
+    width:100%;
+    max-width:600px;
+    animation:fadeIn 1s ease;
+}
+
+.input-box{
+    margin-bottom:15px;
+}
+
+.input-box label{
+    display:block;
+    margin-bottom:5px;
+}
+
+.input-box input,
+.input-box textarea{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    outline:none;
+}
+
+.btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#38bdf8;
+    color:white;
+    cursor:pointer;
+}
+
+.btn:hover{
+    transform:scale(1.02);
+}
+
+.info{
+    margin-top:20px;
+    text-align:center;
+    color:#1f51f8;
+}
+
+.toast{
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:12px 20px;
+    border-radius:6px;
+    color:white;
+}
+
+.success{background:green;}
+.error{background:red;}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+</style>
+
+</div>
+</body>
+</html>

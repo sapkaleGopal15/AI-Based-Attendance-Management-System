@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+<head>
+<meta charset="UTF-8">
+<title>About | Smart Attendance AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+<div id="content">
+<div class="header">
+    <h1>About <span>Smart Attendance AI</span></h1>
+    <p>Revolutionizing attendance using Artificial Intelligence</p>
+</div>
+
+<div class="about">
+    <p>
+        Our AI-based Attendance Management System uses face recognition and machine learning
+        to automate attendance tracking. It eliminates manual errors and provides real-time
+        monitoring with accurate data insights.
+    </p>
+</div>
+
+<section class="stats">
+    <div class="stat-card">
+        <h2 id="students">0</h2>
+        <p>Students</p>
+    </div>
+
+    <div class="stat-card">
+        <h2 id="teachers">0</h2>
+        <p>Teachers</p>
+    </div>
+
+    <div class="stat-card">
+        <h2 id="records">0</h2>
+        <p>Attendance Records</p>
+    </div>
+</section>
+
+<section class="features">
+    <div class="feature">
+        <h3>Face Recognition</h3>
+        <p>Automatically detect and mark attendance</p>
+    </div>
+
+    <div class="feature">
+        <h3>Real-time Data</h3>
+        <p>Instant attendance tracking</p>
+    </div>
+
+    <div class="feature">
+        <h3>Reports</h3>
+        <p>Generate detailed analytics</p>
+    </div>
+</section>
+
+<section class="team">
+    <h2>Our Team</h2>
+
+    <div class="team-grid">
+        <div class="member">
+            <img src="https://via.placeholder.com/80">
+            <h4>Gopal Sapkale</h4>
+            <p>Developer</p>
+        </div>
+
+        <div class="member">
+            <img src="https://via.placeholder.com/80">
+            <h4>Punam Koli, Tejaswini Patil, Chaitali Khonde, Varuni Birari</h4>
+            <p>Designer</p>
+        </div>
+    </div>
+</section>
+
+<script>
+function animate(id,start,end,duration){
+    let obj=document.getElementById(id);
+    let range=end-start;
+    let current=start;
+    let stepTime=Math.abs(Math.floor(duration/range));
+
+    let timer=setInterval(()=>{
+        current++;
+        obj.innerHTML=current;
+        if(current>=end){
+            clearInterval(timer);
+        }
+    },stepTime);
+}
+
+animate("students",0,300,1500);
+animate("teachers",0,25,1500);
+animate("records",0,1500,2000);
+</script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+}
+
+.header{
+    text-align:center;
+    padding:60px 20px;
+    animation:fadeIn 1s ease;
+}
+
+.header h1{
+    font-size:38px;
+}
+
+.header span{
+    color:#38bdf8;
+}
+
+.header p{
+    margin-top:10px;
+    color:#cbd5f5;
+}
+
+.about{
+    max-width:1000px;
+    margin:auto;
+    padding:30px;
+    background: rgba(255,255,255,0.08);
+    border-radius:15px;
+    backdrop-filter:blur(10px);
+}
+
+.about p{
+    line-height:1.7;
+    color:#e2e8f0;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;
+    padding:40px;
+}
+
+.stat-card{
+    background: rgba(255,255,255,0.1);
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+    transition:0.3s;
+}
+
+.stat-card:hover{
+    transform:translateY(-5px);
+}
+
+.stat-card h2{
+    color:#38bdf8;
+}
+
+.features{
+    padding:40px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.feature{
+    background:white;
+    color:black;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+}
+
+.team{
+    padding:40px;
+    text-align:center;
+}
+
+.team-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;
+}
+
+.member{
+    background:rgba(255,255,255,0.1);
+    padding:20px;
+    border-radius:10px;
+}
+
+.member img{
+    width:80px;
+    border-radius:50%;
+    margin-bottom:10px;
+}
+
+.footer{
+    text-align:center;
+    padding:20px;
+    background:#020617;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+</style>
+
+</div>
+</body>
+</html>

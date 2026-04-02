@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Live AI Attendance Scanner</title>
+    <meta charset="UTF-8">
+
+    <style>
+        body {
+            margin:0;
+            font-family: 'Segoe UI', sans-serif;
+            background:#0f172a;
+            color:#fff;
+            text-align:center;
+        }
+
+        header {
+            padding:15px;
+            background:#1e293b;
+            font-size:20px;
+            font-weight:bold;
+        }
+
+        .top-actions {
+            margin:10px;
+        }
+
+        .btn {
+            padding:10px 20px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            margin:5px;
+            font-weight:600;
+        }
+
+        .stop { background:#ef4444; color:white; }
+        .back { background:#22c55e; color:white; }
+
+        .container {
+            margin-top:20px;
+            position:relative;
+            display:inline-block;
+        }
+
+        video {
+            border-radius:10px;
+            border:3px solid #2563eb;
+        }
+
+        canvas {
+            position:absolute;
+            left:0;
+            top:0;
+        }
+
+        .status {
+            margin-top:15px;
+            font-size:16px;
+            color:#22c55e;
+        }
+
+        .messages {
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            width: 300px;
+            max-height: 75vh;
+            overflow:auto;
+        }
+
+        .msg {
+            background: rgba(255,255,255,0.06);
+            padding:10px;
+            margin-bottom:8px;
+            border-radius:8px;
+            text-align:left;
+            font-size:13px;
+        }
+
+        .present { border-left:4px solid #16a34a; }
+        .already { border-left:4px solid #f59e0b; }
+        .error { border-left:4px solid #ef4444; }
+
+    </style>
+</head>
+
+<body>
+
+<header>🎥 AI Classroom Live Attendance</header>
+
+<div class="top-actions">
+    <button id="stopBtn" class="btn stop">⛔ Stop</button>
+    <button onclick="goBack()" class="btn back">⬅ Back</button>
+</div>
+
+<div class="container">
+    <video id="video" width="720" height="480" autoplay></video>
+    <canvas id="overlay" width="720" height="480"></canvas>
+</div>
+
+<div class="status" id="status">Live Scanning Started...</div>
+
+<div class="messages" id="messages"></div>
+
+<script>
+
+let scanning = true;
+let streamRef = null;
+let lectureId = localStorage.getItem("lectureId");
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("overlay");
+const ctx = canvas.getContext("2d");
+const messagesEl = document.getElementById("messages");
+
+async function startCamera() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: true
+        });
+
+        streamRef = stream;
+        video.srcObject = stream;
+
+    } catch (err) {
+        alert("Camera permission denied");
+    }
+}
+
+
+
+window.onload = function(){
+
+    let lectureIdLocal = localStorage.getItem("lectureId");
+    let mode = localStorage.getItem("mode");
+
+    if(!lectureIdLocal){
+        alert("No active lecture found ❌");
+        window.location.href="/teacher/";
+        return;
+    }
+
+    lectureId = lectureIdLocal;
+
+    console.log("Lecture ID:", lectureId);
+    console.log("Mode:", mode);
+
+    startCamera();
+
+    if(mode === "CONTINUE"){
+
+        let students = JSON.parse(localStorage.getItem("students") || "[]");
+        let attendance = JSON.parse(localStorage.getItem("attendance") || "[]");
+
+        console.log("Restored Students:", students);
+        console.log("Restored Attendance:", attendance);
+
+        document.getElementById("status").innerText =
+            "Resuming Previous Attendance 🔄";
+    }
+};
+
+document.getElementById("stopBtn").onclick = () => {
+
+    scanning = false;
+
+    if (streamRef) {
+        streamRef.getTracks().forEach(track => track.stop());
+    }
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    document.getElementById("status").innerText = "Attendance Stopped ❌";
+};
+
+setInterval(() => {
+    if (scanning) captureAndSend();
+}, 2000);
+
+async function captureAndSend() {
+
+    if (!video.videoWidth) return;
+
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+
+    tempCanvas.getContext("2d").drawImage(video, 0, 0);
+
+    tempCanvas.toBlob(async function(blob){
+
+        try {
+
+            let form = new FormData();
+            form.append("file", blob, "frame.jpg");
+            form.append("lectureId", lectureId);
+
+            let res = await fetch("/api/attendance/live", {
+                method: "POST",
+                body: form
+            });
+
+            if (!res.ok) return;
+
+            let data = await res.json();
+            drawFaces(data.faces || []);
+
+        } catch (err) {
+            console.error(err);
+        }
+
+    }, "image/jpeg", 0.8);
+}
+
+function drawFaces(faces){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    faces.forEach(f => {
+
+        let x = f.x || 0;
+        let y = f.y || 0;
+        let w = f.w || 80;
+        let h = f.h || 80;
+
+        let status = f.status;
+        let name = f.name || "Unknown";
+
+        let color = "#ef4444";
+
+        if(status === "PRESENT") color = "#16a34a";
+        else if(status === "ALREADY_MARKED") color = "#f59e0b";
+        else if(status === "NO_EYES") name = "No Eyes Detected";
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x,y,w,h);
+
+        ctx.fillStyle = color;
+        ctx.font = "16px Arial";
+        ctx.fillText(name + " · " + status, x, y-5);
+
+        pushMessage(name, status);
+    });
+}
+
+function pushMessage(name, status){
+
+    let div = document.createElement("div");
+    div.classList.add("msg");
+
+    if(status === "PRESENT") div.classList.add("present");
+    else if(status === "ALREADY_MARKED") div.classList.add("already");
+    else div.classList.add("error");
+
+    div.innerText = name + " - " + status + " (" + new Date().toLocaleTimeString() + ")";
+
+    messagesEl.prepend(div);
+
+    setTimeout(()=> div.remove(), 8000);
+}
+
+function goBack(){
+    window.location.href="/teacher/";
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+<div th:fragment="sidebar" class="container">
+    <div class="sidebar">
+        <th:block th:if="${session.college != null}">
+            <h2>College Panel</h2>
+            <ul>
+                <a th:href="@{/college/}"><li th:classappend="${paramValue == 'dashboard'} ? 'active-bg' : ''">Dashboard</li></a>
+                <a th:href="@{/college/teachers}"><li th:classappend="${paramValue == 'teacher'} ? 'active-bg' : ''">Faculty Members</li></a>
+                <a th:href="@{/college/hods}"><li th:classappend="${paramValue == 'HOD'} ? 'active-bg' : ''">HOD</li></a>
+                <a th:href="@{/college/students}"><li th:classappend="${paramValue == 'student'} ? 'active-bg' : ''">Students</li></a>
+                <a th:href="@{/college/add-HOD}"><li th:classappend="${paramValue == 'addHOD'} ? 'active-bg' : ''">Add Teacher</li></a>
+                <a th:href="@{/logout}"><li>Logout</li></a>
+            </ul>
+        </th:block>
+        <th:block th:if="${session.authentication != null and session.authentication.role == 'teacher'}">
+            <h2>Teacher Panel</h2>
+            <ul>
+                <a th:href="@{/teacher/}"><li th:classappend="${paramValue == 'dashboard'} ? 'active-bg' : ''">Dashboard</li></a>
+                <a th:href="@{/teacher/all-students}"><li th:classappend="${paramValue == 'students'} ? 'active-bg' : ''">Students</li></a>
+                <a th:href="@{/teacher/add-student}"><li th:classappend="${paramValue == 'addStudent'} ? 'active-bg' : ''">Add Student</li></a>
+                <a href="#" onclick="openAttendanceModal()"><li th:classappend="${paramValue == 'startAttendance'} ? 'active-bg' : ''">Start Attendance</li></a>
+                <a th:href="@{/teacher/students/attendance}"><li th:classappend="${paramValue == 'studentAttendance'} ? 'active-bg' : ''">Student Attendance</li></a>
+                <a th:href="@{/teacher/lectures}"><li th:classappend="${paramValue == 'lectures'} ? 'active-bg' : ''">Lectures</li></a>
+                <a th:href="@{/logout}"><li>Logout</li></a>
+            </ul>
+        </th:block>
+        <th:block th:if="${session.authentication != null and session.authentication.role == 'HOD'}">
+            <h2>HOD Panel</h2>
+            <ul>
+                <a th:href="@{/hod/}"><li th:classappend="${paramValue == 'dashboard'} ? 'active-bg' : ''">Dashboard</li></a>
+                <a th:href="@{/hod/teachers}"><li th:classappend="${paramValue == 'teachers'} ? 'active-bg' : ''">Faculty Members</li></a>
+                <a th:href="@{/hod/lectures}"><li th:classappend="${paramValue == 'lectures'} ? 'active-bg' : ''">Lectures</li></a>
+                <a th:href="@{/hod/students}"><li th:classappend="${paramValue == 'students'} ? 'active-bg' : ''">Students</li></a>
+                <a th:href="@{/hod/add-teacher}"><li th:classappend="${paramValue == 'addTeacher'} ? 'active-bg' : ''">Add Teacher</li></a>
+                <a th:href="@{/logout}"><li>Logout</li></a>
+            </ul>
+        </th:block>
+    </div> 
+    
+    
+    <div id="attendanceModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center;">
+
+        <div style="background:white; padding:30px; border-radius:10px; width:300px; text-align:center;">
+
+            <h3>Select Attendance Mode</h3>
+
+            <button onclick="continueAttendance()" style="margin:10px; padding:10px; width:100%;">
+                Continue Previous
+            </button>
+
+            <button onclick="showNewForm()" style="margin:10px; padding:10px; width:100%;">
+                Start New Lecture
+            </button>
+
+            <div id="newLectureForm" style="display:none;">
+                <input type="text" id="subject" required placeholder="Enter Subject" style="margin:5px; width:100%; padding:8px;">
+                <input type="text" id="classroom" required placeholder="Enter Classroom" style="margin:5px; width:100%; padding:8px;">
+
+                <button onclick="startNewAttendance()" style="margin-top:10px; padding:10px; width:100%;">
+                    Start
+                </button>
+            </div>
+
+            <button onclick="closeModal()" style="margin-top:10px;">Cancel</button>
+
+        </div>
+    </div>
+
+    <script>
+        function openAttendanceModal(){
+            document.getElementById("attendanceModal").style.display = "flex";
+        }
+
+        function closeModal(){
+            document.getElementById("attendanceModal").style.display = "none";
+        }
+
+        function showNewForm(){
+            document.getElementById("newLectureForm").style.display = "block";
+        }
+
+
+        function continueAttendanceBase(){
+
+            fetch("/api/attendance/start", {
+                method:"POST",
+                headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+                body:"mode=CONTINUE"
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                localStorage.setItem("lectureId", data.lectureId);
+                window.location.href="/teacher/start-attendance";
+            });
+        }
+
+        function continueAttendance(){
+
+            fetch("/api/attendance/start", {
+                method:"POST",
+                headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+                body:"mode=CONTINUE"
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                if(data.error){
+                    alert(data.error);
+                    return;
+                }
+
+                localStorage.setItem("lectureId", data.lectureId);
+
+                if(data.students){
+                    localStorage.setItem("students", JSON.stringify(data.students));
+                }
+
+                if(data.attendance){
+                    localStorage.setItem("attendance", JSON.stringify(data.attendance));
+                }
+
+                localStorage.setItem("mode", "CONTINUE");
+
+                window.location.href="/teacher/start-attendance";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error continuing attendance");
+            });
+        }
+
+    
+        function startNewAttendance(){
+
+            let subject = document.getElementById("subject").value;
+            let classroom = document.getElementById("classroom").value;
+
+            if(subject == "") {
+                return false;
+            }
+
+            if(classroom == "") {
+                return false;
+            }
+
+            fetch("/api/attendance/start", {
+                method:"POST",
+                headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+                body:`subject=${subject}&classroom=${classroom}&mode=NEW`
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                localStorage.setItem("lectureId", data.lectureId);
+                window.location.href="/teacher/start-attendance";
+            });
+        }
+    </script>
+
+    <style>
+        .container {
+            display: flex;
+        }
+
+        .active-bg {
+            background-color: #2563eb; 
+            color: #ffffff;
+        }
+
+        .sidebar {
+            width: 180px;          
+            height: 100vh;
+            background: white;
+            padding: 15px 10px;    
+            position: fixed;       
+            top: 0;
+            left: 0;
+            border-right: 1px solid #ddd;
+        }
+
+        .sidebar a {
+            color: black;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .sidebar ul li:hover,
+        .sidebar ul .active {
+            background: #1668ec;
+            color: white;
+        }
+    </style>
+    
+</div>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content},~{::title})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | SmartScan AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+    <div id="content">
+
+    <section class="main-container">
+   
+    <div class="header">
+        Attendance Management System
+    </div>
+
+    <div class="content-box">
+
+        <div class="left-image">
+            <img src="https://www.aalimec.ac.in/wp-content/uploads/2025/06/ams-2.png" alt="college">
+        </div>
+
+        <div class="login-box">
+
+            
+                <i class="fas fa-user">Login as a Department</i>
+            
+
+            <th:block th:if="${session.successMsg}">
+                <p class="custom-text-success">[[${session.successMsg}]]</p>
+                <th:block th:text="${@commonService.removeMessage()}"></th:block>
+            </th:block>
+
+            <th:block th:if="${session.errorMsg}">
+                <p class="custom-text-error">[[${session.errorMsg}]]</p>
+                <th:block th:text="${@commonService.removeMessage()}"></th:block>
+            </th:block>
+
+            <form th:action="@{/do-hod-login}" method="post" novalidate>
+
+                <input type="email" name="email" placeholder="User ID" required>
+
+                <input type="password" name="password" placeholder="Password" required>
+
+                <button type="submit">Login</button>
+
+            </form>
+
+            <p><a th:href="@{/hod-forget-password}">Forget password? Click here</a></p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+    <style>
+        .custom-text-success {
+            text-align: center;
+            color: #16a34a;      
+            font-weight: 600;    
+            margin-top: 0.5rem;  
+        }
+
+
+        .custom-text-error {
+            text-align: center;
+            color: #c20b0b;      
+            font-weight: 600;    
+            margin-top: 0.5rem;  
+        }
+
+
+
+
+
+        body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+}
+
+.header {
+    background: green;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.college-title {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.college-logo {
+    width: 50px;
+    vertical-align: middle;
+}
+
+.college-title h2 {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.content-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin: 30px;
+}
+
+.left-image img {
+    width: 400px;
+    height: 250px;
+    border-radius: 5px;
+}
+
+.login-box {
+    width: 300px;
+    padding: 25px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    background: white;
+    text-align: center;
+}
+
+.user-icon {
+    font-size: 40px;
+    color: green;
+    margin-bottom: 15px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 10px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    background: darkgreen;
+}
+
+.login-box a {
+    color: blue;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+
+    </style>
+
+</div>
+</body>
+</html>
+
