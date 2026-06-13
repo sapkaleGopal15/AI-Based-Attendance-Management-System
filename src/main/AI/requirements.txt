@@ -1,6 +1,6 @@
 flask
 torch
 facenet-pytorch
-pillow
+Pillow==11.3.0
 numpy
 opencv-python
