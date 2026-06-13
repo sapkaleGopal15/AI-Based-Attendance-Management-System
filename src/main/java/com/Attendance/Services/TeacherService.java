@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -23,6 +24,9 @@ public class TeacherService implements TeacherServiceImpl {
     @Autowired
     private CollegeService collegeService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public Boolean saveTeacher(TeacherDto teacherDto, Integer id) {
 
@@ -33,9 +37,11 @@ public class TeacherService implements TeacherServiceImpl {
             .email(teacherDto.getEmail())
             .department(existTeacher.getDepartment())
             .college(existTeacher.getCollege())
-            .password(teacherDto.getPassword())
+            .password(passwordEncoder.encode(teacherDto.getPassword()))
             .contact(teacherDto.getContact())
-            .role("teacher")
+            .role("TEACHER")
+            .active(true)
+            .verified(true)
             .build();
 
         Teacher savedTeacher = teacherRepository.save(teacher);
@@ -56,10 +62,12 @@ public class TeacherService implements TeacherServiceImpl {
             .name(hodDto.getName())
             .email(hodDto.getEmail())
             .department(hodDto.getDepartment())
-            .password(hodDto.getPassword())
+            .password(passwordEncoder.encode(hodDto.getPassword()))
             .contact(hodDto.getContact())
             .role(hodDto.getRole())
             .college(existCollege)
+            .active(true)
+            .verified(true)
             .build();
 
         Teacher savedHOD = teacherRepository.save(teacher);
@@ -116,6 +124,11 @@ public class TeacherService implements TeacherServiceImpl {
     @Override
     public List<Teacher> findByCollege(College college) {
         return teacherRepository.findByCollege(college);
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        teacherRepository.deleteById(id);
     }
     
 

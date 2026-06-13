@@ -33,6 +33,7 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/hod")
+// @PreAuthorize("hasRole('HOD')")
 public class HODController {
 
     @Autowired
@@ -59,6 +60,7 @@ public class HODController {
         Integer id = (Integer) session.getAttribute("logedTeacher");
         List<Teacher> teachers = teacherService.findByDepartment(id);
         List<Student> students = studentService.findByDepartment(id);
+        
         model.addAttribute("totalTeachers", teachers.size());
         model.addAttribute("totalStudents",students.size());
         model.addAttribute("showSidebar", true);
@@ -320,7 +322,8 @@ public class HODController {
         updateTeacher.setName(teacher.getName());
         updateTeacher.setEmail(teacher.getEmail());
         updateTeacher.setContact(teacher.getContact());
-
+        updateTeacher.setActive(teacher.isActive());
+        updateTeacher.setVerified(teacher.isVerified());
         if (teacherService.updateTeacher(updateTeacher)) {
             redirectAttributes.addFlashAttribute("successMsg","Teacher updated successfull...");
             return "redirect:/hod/teachers";
@@ -329,6 +332,13 @@ public class HODController {
             model.addAttribute("errorMsg", "Something went wrong !");
             return "HOD/update_teacher";
         }
+    }
+
+    @PostMapping("/delete-teacher/{id}")
+    public String deleteTeacher(@PathVariable("id") Integer id, RedirectAttributes ra) {
+        teacherService.deleteById(id);
+        ra.addFlashAttribute("successMsg", "Teacher deleted successfully!");
+        return "redirect:/hod/teachers";
     }
 
 

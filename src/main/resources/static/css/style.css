@@ -19,7 +19,6 @@
 }
 
 body {
-    padding-top: 40px;
     background-color: var(--bg-light);
     color: var(--text-main);
     line-height: 1.6;

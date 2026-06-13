@@ -59,7 +59,7 @@
 
                 <div class="input-group">
                     <label>College/School Established</label>
-                    <input type="date" th:field="*{date}" id="dob"  placeholder="Enter college established date" required>
+                    <input type="date" th:field="*{date}" id="dob" onclick="this.showPicker()" placeholder="Enter college established date" required>
                     <p class="hasError" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
                 </div>
 
@@ -118,6 +118,7 @@
 
 body {
     background: #f5f7fb;
+    margin-top: 50px;
 }
 
 .register-wrapper {

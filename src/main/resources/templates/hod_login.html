@@ -22,7 +22,7 @@
     <div class="content-box">
 
         <div class="left-image">
-            <img src="https://www.aalimec.ac.in/wp-content/uploads/2025/06/ams-2.png" alt="college">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn43RqgQiqwcbN82ZwpPi6NkfaUmHqQij7Dw&s" alt="college">
         </div>
 
         <div class="login-box">
@@ -41,17 +41,17 @@
                 <th:block th:text="${@commonService.removeMessage()}"></th:block>
             </th:block>
 
-            <form th:action="@{/do-hod-login}" method="post" novalidate>
+            <form th:action="@{/login}" method="post">
+                <input type="email" name="username" placeholder="Email" required>
+                <input type="password" name="password" placeholder="password" required>
 
-                <input type="email" name="email" placeholder="User ID" required>
-
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="hidden" name="role" value="HOD">
+                <input type="hidden" name="panel" value="hod">
 
                 <button type="submit">Login</button>
-
             </form>
 
-            <p><a th:href="@{/hod-forget-password}">Forget password? Click here</a></p>
+            <p><a th:href="@{/hod-forgot-password}">Forget password? Click here</a></p>
 
         </div>
 
@@ -85,6 +85,7 @@
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f3f4f6;
+    margin-top: 50px;
 }
 
 .header {

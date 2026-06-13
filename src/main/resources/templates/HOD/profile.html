@@ -62,7 +62,9 @@
 
                         <div>
                             <label>Role</label>
-                            <p>[[${session.authentication.role}]]</p>
+                            <th:block th:if="${session.authentication.role == 'HOD'}">
+                                <p style="color: rgb(10, 23, 10); font-weight: 500;">Head of Department</p>
+                            </th:block>
                         </div>
 
                     </div>
@@ -73,7 +75,7 @@
         <style>
 .main-content {
     margin-left: 190px;
-    margin-top: 30px;
+    margin-top: 50px;
     padding: 25px;
 }
 

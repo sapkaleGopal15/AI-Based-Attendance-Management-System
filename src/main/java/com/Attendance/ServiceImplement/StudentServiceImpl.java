@@ -23,4 +23,5 @@ public interface StudentServiceImpl {
     Boolean saveStudentById(StudentDto studentDto, Teacher teacher, String embedding);
     List<Student> findByDepartment(Integer id);
     List<Student> findByTeacher(Teacher teacher);
+    Boolean updateFaceById(Student student, Teacher teacher, String embedding);
 }

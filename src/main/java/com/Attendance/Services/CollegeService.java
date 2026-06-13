@@ -1,6 +1,7 @@
 package com.Attendance.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -15,6 +16,9 @@ public class CollegeService implements CollegeServiceImpl{
     @Autowired
     private CollegeRepository collegeRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public College findByCollegeId(String collegeId) {
         return collegeRepository.findByCollegeId(collegeId);
@@ -27,10 +31,13 @@ public class CollegeService implements CollegeServiceImpl{
             .address(collegeDto.getAddress())
             .university(collegeDto.getUniversity())
             .collegeId(collegeDto.getCollegeId())
-            .password(collegeDto.getPassword())
+            .password(passwordEncoder.encode(collegeDto.getPassword()))
             .principle(collegeDto.getPrinciple())
+            .role("COLLEGE")
             .email(collegeDto.getEmail())
             .date(collegeDto.getDate())
+            .active(true)
+            .verified(true)
             .build();
 
         College college2 = collegeRepository.save(college);
@@ -69,10 +76,13 @@ public class CollegeService implements CollegeServiceImpl{
         college2.setCollegeId(college.getCollegeId());
         college2.setDate(college.getDate());
         college2.setEmail(college.getEmail());
-        college2.setPassword(newPass);
+        college2.setPassword(passwordEncoder.encode(newPass));
         college2.setPrinciple(college.getPrinciple());
         college2.setTeachers(college.getTeachers());
         college2.setUniversity(college.getUniversity());
+        college2.setRole(college.getRole());
+        college2.setActive(college.isActive());
+        college2.setVerified(college.isVerified());
 
         College savedColleged = collegeRepository.save(college2);
 

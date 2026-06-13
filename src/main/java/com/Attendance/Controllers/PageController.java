@@ -1,6 +1,7 @@
 package com.Attendance.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -23,11 +24,17 @@ import jakarta.validation.Valid;
 @Controller
 public class PageController {
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     private TeacherService teacherService;
 
     @Autowired
     private CollegeService collegeService;
+
+    PageController(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @GetMapping("/")
     public String index(Model model) {
@@ -81,106 +88,22 @@ public class PageController {
         return "college_login";
     }
 
-    @GetMapping("/college-forget-password")
+    @GetMapping("/college-forgot-password")
     public String collegeForgetPassword() {
-        return "college_forget_password";
+        return "college_forgot_password";
     }
 
-    @GetMapping("/hod-forget-password")
+    @GetMapping("/hod-forgot-password")
     public String hodForgetPassword() {
-        return "hod_forget_password";
+        return "hod_forgot_password";
     }
 
-    @GetMapping("/forget-password")
+    @GetMapping("/forgot-password")
     public String forgetPassword() {
-        return "forget_password";
+        return "forgot_password";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
-        session.invalidate();
-        redirectAttributes.addFlashAttribute("successMsg", "Sign out seccessfully...");
-        return "redirect:/";
-    }
-
-
-
-    // =================== Proccessing ==========================
-    @PostMapping("/do-login")
-    public String doLogin(@RequestParam String email, @RequestParam String password, HttpSession session,
-            RedirectAttributes redirectAttributes, Model model) {
-        try {
-
-            if (email.isEmpty() && password.isEmpty()) {
-                session.setAttribute("errorMsg", "Email & Password is must !");
-                return "login";
-            }
-
-            Teacher existTeacher = teacherService.findByEmail(email);
-            if (ObjectUtils.isEmpty(existTeacher)) {
-                session.setAttribute("errorMsg", "Email doesn't exist !");
-                return "login";
-            }
-
-            if (!existTeacher.getPassword().equals(password)) {
-                session.setAttribute("errorMsg", "Invalid password !");
-                return "login";
-            }
-
-            if (existTeacher.getRole().equals("HOD")) {
-                session.setAttribute("errorMsg", "Login with Department panel !");
-                return "login";
-            }
-
-            if (existTeacher.getRole().equals("teacher")) {
-                session.setAttribute("authentication", existTeacher);
-                session.setAttribute("logedTeacher", existTeacher.getId());
-                redirectAttributes.addFlashAttribute("successMsg", "Login successfull...");
-                return "redirect:/teacher/";
-            }
-
-            session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "login";
-
-        } catch (Exception exception) {
-            model.addAttribute("errorMsg", "Something went wrong !");
-            return "login";
-        }
-    }
-
-    @PostMapping("/do-hod-login")
-    public String doHODLogin(@RequestParam String email, @RequestParam String password, HttpSession session, RedirectAttributes redirectAttributes, Model model) {
-        if (email.isEmpty() && password.isEmpty()) {
-            session.setAttribute("errorMsg", "Email & Password is must !");
-            return "hod_login";
-        }
-
-        Teacher existTeacher = teacherService.findByEmail(email);
-        if (ObjectUtils.isEmpty(existTeacher)) {
-            session.setAttribute("errorMsg", "Email doesn't exist !");
-            return "hod_login";
-        }
-
-        if (!existTeacher.getPassword().equals(password)) {
-            session.setAttribute("errorMsg", "Invalid password !");
-            return "hod_login";
-        }
-
-        if (existTeacher.getRole().equals("teacher")) {
-            session.setAttribute("errorMsg", "Login with faculty panel !");
-            return "hod_login";
-        }
-
-        if (existTeacher.getRole().equals("HOD")) {
-            session.setAttribute("authentication", existTeacher);
-            session.setAttribute("logedTeacher", existTeacher.getId()); 
-            redirectAttributes.addFlashAttribute("successMsg", "Login successfull...");
-            return "redirect:/hod/";
-        }
-        
-        session.setAttribute("errorMsg", "Somathing went wromg !");
-        return "login";
-    }
+    // =================================== Proccessing ==========================================================
 
     @PostMapping("/do-register")
     public String doRegister(@Valid @ModelAttribute CollegeDto collegeDto, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
@@ -210,30 +133,6 @@ public class PageController {
         }
     }
 
-
-    @PostMapping("/do-college-login")
-    public String collgeLogin(@RequestParam String collegeId, @RequestParam String password, HttpSession session, RedirectAttributes redirectAttributes, Model model) {
-        if (collegeId.isEmpty() && password.isEmpty()) {
-            session.setAttribute("errorMsg", "College id & Password is must !");
-            return "college_login";
-        }
-
-        College existCollege = collegeService.findByCollegeId(collegeId);
-        if (ObjectUtils.isEmpty(existCollege)) {
-            session.setAttribute("errorMsg", "College id doesn't exist !");
-            return "college_login";
-        }
-
-        if (!existCollege.getPassword().equals(password)) {
-            session.setAttribute("errorMsg", "Invalid password !");
-            return "college_login";
-        }
-        session.setAttribute("college", existCollege);
-        session.setAttribute("logedCollege", existCollege.getId()); 
-        redirectAttributes.addFlashAttribute("successMsg", "Login successfull...");
-        return "redirect:/college/";
-    }
-
     @PostMapping("/do-college-forgot-password")
     public String doCollegeForgotPassword(
             @RequestParam String collegeId,
@@ -246,12 +145,12 @@ public class PageController {
         if (college != null &&
             college.getName().equals(collegeName) &&
             college.getEmail().equals(collegeEmail)) {
-
+    
             session.setAttribute("successMsg", "Verified! your password is ("+college.getPassword()+")");
-            return "college_forget_password";
+            return "college_forgot_password";
         } else {
             session.setAttribute("errorMsg", "Invalid details!");
-            return "college_forget_password";
+            return "college_forgot_password";
         }
     }
 
@@ -264,7 +163,6 @@ public class PageController {
             HttpSession session) {
 
         Teacher teacher = teacherService.findByEmail(departmentEmail);
-
         if (teacher != null &&
             teacher.getName().equals(teacherName) &&
             teacher.getDepartment().equals(department) && 
@@ -272,10 +170,10 @@ public class PageController {
             teacher.getRole().equals("HOD")) {
 
             session.setAttribute("successMsg", "Verified! your password is ("+teacher.getPassword()+")");
-            return "hod_forget_password";
+            return "hod_forgot_password";
         } else {
             session.setAttribute("errorMsg", "Invalid details!");
-            return "hod_forget_password";
+            return "hod_forgot_password";
         }
     }
 
@@ -296,10 +194,10 @@ public class PageController {
             teacher.getRole().equals("teacher")) {
 
             session.setAttribute("successMsg", "Verified! your password is ("+teacher.getPassword()+")");
-            return "forget_password";
+            return "forgot_password";
         } else {
             session.setAttribute("errorMsg", "Invalid details!");
-            return "forget_password";
+            return "forgot_password";
         }
     }
 }

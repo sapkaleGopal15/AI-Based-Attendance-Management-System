@@ -4,9 +4,9 @@
         <a th:href="@{/}"><div class="logo">SmartScan AI</div></a>
 
         <div class="nav-links">
-            <a th:href="@{/}" th:classappend="${paramValue == 'home'} ? 'isActive' : ''">Home</a>
-            <a th:href="@{/about}" th:classappend="${paramValue == 'about'} ? 'isActive' : ''">About</a>
-            <a th:href="@{/contact}" th:classappend="${paramValue == 'contact'} ? 'isActive' : ''">Contact</a>
+            <a th:href="@{/}" th:classappend="${paramValue == 'home'} ? 'is_Active' : ''">Home</a>
+            <a th:href="@{/about}" th:classappend="${paramValue == 'about'} ? 'is_Active' : ''">About</a>
+            <a th:href="@{/contact}" th:classappend="${paramValue == 'contact'} ? 'is_Active' : ''">Contact</a>
 
              <th:block th:if="${session.college == null}">
              <th:block th:if="${session.authentication == null}">
@@ -21,7 +21,7 @@
                         </div>
                     </div>
 
-                    <a th:href="@{/register}" class="btn-register" th:classappend="${paramValue == 'registerCollege'} ? 'isActive' : ''">Register College</a>
+                    <a th:href="@{/register}" class="btn-register" th:classappend="${paramValue == 'registerCollege'} ? 'is_Active' : ''">Register College</a>
                 </div>
             </th:block>
 
@@ -32,7 +32,7 @@
                         <button class="user-btn">
                             👤
                                 <div class="user-info">
-                                    <th:block th:if="${session.authentication.role == 'teacher'}">
+                                    <th:block th:if="${session.authentication.role == 'TEACHER'}">
                                         <span class="username">Prof. [[${session.authentication.name}]]</span>
                                         <span class="rolebase">Faculty Member</span>
                                     </th:block>
@@ -45,7 +45,7 @@
                         </button>
 
                         <div class="dropdown-content">
-                            <th:block th:if="${session.authentication.role == 'teacher'}">
+                            <th:block th:if="${session.authentication.role == 'TEACHER'}">
                                 <a th:href="@{/teacher/profile}">Profile</a>
                                 <a th:href="@{/teacher/}">Dashboard</a>
                             </th:block>
@@ -53,7 +53,9 @@
                                 <a th:href="@{/hod/profile}">Profile</a>
                                 <a th:href="@{/hod/}">Dashboard</a>
                             </th:block>
-                            <a th:href="@{/logout}">Logout</a>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="logout">Logout</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -74,7 +76,9 @@
                         <div class="dropdown-content">
                             <a th:href="@{/college/profile}">Profile</a>
                             <a th:href="@{/college/}">Dashboard</a>
-                            <a th:href="@{/logout}">Logout</a>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="logout">Logout</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -157,8 +161,8 @@
             color: var(--primary-color);
         }
 
-        .isActive{
-            color: blue;
+        .is_Active{
+            color: var(--primary-color);
         }
 
         .user-btn {
@@ -231,6 +235,22 @@
         .dropdown:hover .dropdown-content,
         .dropdown-content:hover {
             display: block;
+        }
+
+        .logout {
+            width: 100%;
+            padding: 12px 15px;
+            background: none;
+            color: red;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .logout:hover {
+            width: 100%;
+            background: #f1f5f9;
+            border-radius: 5px;
         }
     </style>
 

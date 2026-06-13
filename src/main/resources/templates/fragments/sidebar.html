@@ -8,10 +8,12 @@
                 <a th:href="@{/college/hods}"><li th:classappend="${paramValue == 'HOD'} ? 'active-bg' : ''">HOD</li></a>
                 <a th:href="@{/college/students}"><li th:classappend="${paramValue == 'student'} ? 'active-bg' : ''">Students</li></a>
                 <a th:href="@{/college/add-HOD}"><li th:classappend="${paramValue == 'addHOD'} ? 'active-bg' : ''">Add Teacher</li></a>
-                <a th:href="@{/logout}"><li>Logout</li></a>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout">Logout</button>
+                </form>
             </ul>
         </th:block>
-        <th:block th:if="${session.authentication != null and session.authentication.role == 'teacher'}">
+        <th:block th:if="${session.authentication != null and session.authentication.role == 'TEACHER'}">
             <h2>Teacher Panel</h2>
             <ul>
                 <a th:href="@{/teacher/}"><li th:classappend="${paramValue == 'dashboard'} ? 'active-bg' : ''">Dashboard</li></a>
@@ -20,7 +22,9 @@
                 <a href="#" onclick="openAttendanceModal()"><li th:classappend="${paramValue == 'startAttendance'} ? 'active-bg' : ''">Start Attendance</li></a>
                 <a th:href="@{/teacher/students/attendance}"><li th:classappend="${paramValue == 'studentAttendance'} ? 'active-bg' : ''">Student Attendance</li></a>
                 <a th:href="@{/teacher/lectures}"><li th:classappend="${paramValue == 'lectures'} ? 'active-bg' : ''">Lectures</li></a>
-                <a th:href="@{/logout}"><li>Logout</li></a>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout">Logout</button>
+                </form>
             </ul>
         </th:block>
         <th:block th:if="${session.authentication != null and session.authentication.role == 'HOD'}">
@@ -31,7 +35,9 @@
                 <a th:href="@{/hod/lectures}"><li th:classappend="${paramValue == 'lectures'} ? 'active-bg' : ''">Lectures</li></a>
                 <a th:href="@{/hod/students}"><li th:classappend="${paramValue == 'students'} ? 'active-bg' : ''">Students</li></a>
                 <a th:href="@{/hod/add-teacher}"><li th:classappend="${paramValue == 'addTeacher'} ? 'active-bg' : ''">Add Teacher</li></a>
-                <a th:href="@{/logout}"><li>Logout</li></a>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="logout">Logout</button>
+                </form>
             </ul>
         </th:block>
     </div> 
@@ -78,24 +84,9 @@
             document.getElementById("newLectureForm").style.display = "block";
         }
 
-
-        function continueAttendanceBase(){
-
-            fetch("/api/attendance/start", {
-                method:"POST",
-                headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-                body:"mode=CONTINUE"
-            })
-            .then(res=>res.json())
-            .then(data=>{
-                localStorage.setItem("lectureId", data.lectureId);
-                window.location.href="/teacher/start-attendance";
-            });
-        }
-
         function continueAttendance(){
 
-            fetch("/api/attendance/start", {
+            fetch("/api/attendance/start/cont", {
                 method:"POST",
                 headers:{ "Content-Type":"application/x-www-form-urlencoded" },
                 body:"mode=CONTINUE"
@@ -103,8 +94,8 @@
             .then(res => res.json())
             .then(data => {
 
-                if(data.error){
-                    alert(data.error);
+                if(!data || data.error){
+                    alert(data?.error || "No previous lecture found ❌");
                     return;
                 }
 
@@ -145,7 +136,7 @@
             fetch("/api/attendance/start", {
                 method:"POST",
                 headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-                body:`subject=${subject}&classroom=${classroom}&mode=NEW`
+                body:`subject=${subject}&classroom=${classroom}`
             })
             .then(res=>res.json())
             .then(data=>{
@@ -201,6 +192,23 @@
         .sidebar ul .active {
             background: #1668ec;
             color: white;
+        }
+
+        .logout {
+            width: 100%;
+            padding: 12px 15px;
+            background: none;
+            color: red;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .logout:hover {
+            width: 100%;
+            background: #dc2626;
+            color: white;
+            border-radius: 5px;
         }
     </style>
     

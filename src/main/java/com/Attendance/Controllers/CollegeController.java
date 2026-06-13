@@ -2,7 +2,9 @@ package com.Attendance.Controllers;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.Attendance.DTO.HODDto;
+import com.Attendance.Entities.Attendance;
 import com.Attendance.Entities.College;
 import com.Attendance.Entities.Student;
 import com.Attendance.Entities.Teacher;
+import com.Attendance.Services.AttendanceService;
 import com.Attendance.Services.CollegeService;
 import com.Attendance.Services.LectureService;
 import com.Attendance.Services.StudentService;
@@ -46,11 +50,14 @@ public class CollegeController {
     @Autowired
     private LectureService lectureService;
 
+    @Autowired
+    private AttendanceService attendanceService;;
+
     @GetMapping("/")
     public String dashboard(Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
 
         Integer logedCollegeId = (Integer) session.getAttribute("logedCollege");
@@ -59,6 +66,8 @@ public class CollegeController {
         List<Student> students = new ArrayList<>();
         long todayLectures = 0;
         long totalDepartment = 0;
+        long totalAttendance = 0;
+        long presentAttendance = 0;
         for (Teacher teacher : teachers) {
             students.addAll(studentService.findByTeacher(teacher));
             todayLectures = todayLectures + lectureService.findByTeacherAndDate(teacher, LocalDate.now()).size();
@@ -67,12 +76,118 @@ public class CollegeController {
             }
         }
 
+        for (Student student : students) {
+            totalAttendance += attendanceService.findByStudentAndDate(student, LocalDate.now()).size();
+            presentAttendance += attendanceService.findByStudentAndDateAndStatus(student, LocalDate.now(), "Present").size();
+        }
+
+        double attendanceRate = 0;
+
+        if (totalAttendance > 0) {
+            attendanceRate =
+                    ((double) presentAttendance / totalAttendance) * 100;
+        }
+
+
+        LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+
+        LocalDate endDate = LocalDate.now();
+
+        List<Attendance> attendances = new ArrayList<>();
+        for (Student student : students) {
+            attendances.addAll(attendanceService.findByStudentAndDateBetween(student, startDate, endDate));
+        }
+
+        long totalLectures = attendances.size();
+
+        long presentLectures = attendances.stream()
+                .filter(a -> "PRESENT".equals(a.getStatus()))
+                .count();
+
+        double monthlyAttendanceRate = 0;
+
+        if (totalLectures > 0) {
+
+            monthlyAttendanceRate =
+                    ((double) presentLectures / totalLectures) * 100;
+        }
+
+
+        
+
+        long presentCount = 0;
+
+        long absentCount = 0;
+
+        Map<String, Integer> departmentMap = new HashMap<>();
+
+
+        for (Teacher teacher : teachers) {
+
+            List<Student> teacherStudents =
+                    studentService.findByTeacher(teacher);
+
+            students.addAll(teacherStudents);
+
+
+            // Today lectures
+            todayLectures += lectureService
+                    .findByTeacherAndDate(
+                            teacher,
+                            LocalDate.now())
+                    .size();
+
+            // Attendance calculation
+            for (Student student : teacherStudents) {
+
+                List<Attendance> attendanceList =
+                        attendanceService.findByStudentAndDate(
+                                student,
+                                LocalDate.now());
+
+                for (Attendance attendance : attendanceList) {
+
+                    if ("PRESENT".equals(attendance.getStatus())) {
+                        presentCount++;
+                    }
+
+                    else {
+                        absentCount++;
+                    }
+                }
+            }
+
+            String departmentName =
+                    teacher.getDepartment();
+            departmentMap.put(
+                    departmentName,
+
+                    departmentMap.getOrDefault(
+                            departmentName,
+                            0
+                    ) + teacherStudents.size()
+            );
+        }
+
+        List<String> deptLabels =
+                new ArrayList<>(departmentMap.keySet());
+
+        List<Integer> deptData =
+                new ArrayList<>(departmentMap.values());
+
+        model.addAttribute("presentCount", presentCount);
+        model.addAttribute("absentCount", absentCount);
+        model.addAttribute("deptLabels", deptLabels);
+        model.addAttribute("deptData", deptData);
+        model.addAttribute("monthlyAttendanceRate", String.format("%.2f", monthlyAttendanceRate));
+        model.addAttribute("attendanceRate", String.format("%.2f", attendanceRate));
         model.addAttribute("totalDepartment", totalDepartment);
         model.addAttribute("totalStudent", students.size());
         model.addAttribute("totalTeacher", teachers.size());
         model.addAttribute("todayLectures", todayLectures);
         model.addAttribute("showSidebar", true);
         model.addAttribute("paramValue", "dashboard");
+
         return "College/dashboard";
     }
 
@@ -80,7 +195,7 @@ public class CollegeController {
     public String HOD(Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         Integer logedCollegeId = (Integer) session.getAttribute("logedCollege");
         College college = collegeService.findById(logedCollegeId);
@@ -95,7 +210,7 @@ public class CollegeController {
     public String teachers(Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         Integer logedCollegeId = (Integer) session.getAttribute("logedCollege");
         College college = collegeService.findById(logedCollegeId);
@@ -110,7 +225,7 @@ public class CollegeController {
     public String students(Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         Integer logedCollegeId = (Integer) session.getAttribute("logedCollege");
         College college = collegeService.findById(logedCollegeId);
@@ -131,7 +246,7 @@ public class CollegeController {
     public String register(Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         model.addAttribute("hodDto", new HODDto());
         model.addAttribute("showSidebar", true);
@@ -143,7 +258,7 @@ public class CollegeController {
     public String updateProfile(@PathVariable("id") Integer id, Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         College college = collegeService.findById(id);
         session.setAttribute("password", college.getPassword());
@@ -156,12 +271,13 @@ public class CollegeController {
     public String updateTeacher(@PathVariable("id") Integer id, Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         Teacher teacher = teacherService.findById(id);
         session.setAttribute("teacherPassword", teacher.getPassword());
         model.addAttribute("hod", teacher);
         model.addAttribute("showSidebar", true);
+        model.addAttribute("paramValue", "HOD");
         return "College/update_HOD";
     }
 
@@ -169,7 +285,7 @@ public class CollegeController {
     public String profile(Model model, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         Integer existCollegeId = (Integer) session.getAttribute("logedCollege");
         College college = collegeService.findById(existCollegeId);
@@ -205,7 +321,7 @@ public class CollegeController {
     ) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
 
         Integer existCollegeID = (Integer) session.getAttribute("logedCollege");
@@ -246,7 +362,7 @@ public class CollegeController {
     public String doUpdateProfile(@ModelAttribute("college") College college, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         String password = (String) session.getAttribute("password");
         college.setPassword(password);
@@ -264,7 +380,7 @@ public class CollegeController {
     public String doUpdateHOD(@ModelAttribute("hod") Teacher teacher, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
 
         String password = (String) session.getAttribute("teacherPassword");
@@ -282,11 +398,31 @@ public class CollegeController {
         }
     }
 
+    @PostMapping("/toggle-status/{id}")
+    public String toggleStatus(@PathVariable Integer id) {
+
+        Teacher teacher = teacherService.findById(id);
+
+        // Toggle logic
+        teacher.setActive(!teacher.isActive());
+
+        teacherService.updateTeacher(teacher);
+
+        return "redirect:/college/teachers";
+    }
+
+    @PostMapping("/delete-teacher/{id}")
+    public String deleteTeacher(@PathVariable("id") Integer id, RedirectAttributes ra) {
+        teacherService.deleteById(id);
+        ra.addFlashAttribute("successMsg", "HOD deleted successfully!");
+        return "redirect:/college/hods";
+    }
+
     @PostMapping("/do-update-password")
     public String doUpdatePassword(@RequestParam String oldPass, @RequestParam String newPass, @RequestParam String conPass, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         if (session.getAttribute("logedCollege")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
-            return "redirect:/login/depa";
+            return "redirect:/college-login";
         }
         Integer logedCollegeId = (Integer) session.getAttribute("logedCollege");
         College college = collegeService.findById(logedCollegeId);

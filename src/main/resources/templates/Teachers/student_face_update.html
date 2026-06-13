@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en"
+      th:replace="~{parent :: index(~{::#content}, ~{::title})}"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Update Face | SmartScan AI</title>
+</head>
+
+<body>
+<div id="content">
+
+<div class="container">
+
+    <div th:if="${successMsg}" class="toast success" id="toast" th:text="${successMsg}"></div>
+
+    <div th:if="${errorMsg}" class="toast error" id="toast" th:text="${errorMsg}"></div>
+    
+    <div class="card">
+
+        <h2>Update Student Face</h2>
+
+        <video id="video" autoplay playsinline></video>
+
+        <button class="capture-btn" id="captureBtn" onclick="captureFace()">
+            Capture Face
+        </button>
+
+        <img id="preview" class="preview" style="display:none">
+
+        <div class="status" id="status"></div>
+
+        <!-- FORM -->
+        <form method="post"
+              th:action="@{/teacher/update-face}"
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="studentId" th:value="${student.id}">
+            <input type="file" id="fileInput" name="file" hidden>
+
+            <!-- BUTTONS AT BOTTOM -->
+            <div class="buttons">
+
+                <button class="update-btn" id="updateBtn" type="submit" disabled>
+                    Update Face
+                </button>
+
+                <a th:href="@{/teacher/all-students}" class="cancel-btn">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+const video = document.getElementById("video")
+const preview = document.getElementById("preview")
+const status = document.getElementById("status")
+const fileInput = document.getElementById("fileInput")
+const updateBtn = document.getElementById("updateBtn")
+const captureBtn = document.getElementById("captureBtn")
+
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => video.srcObject = stream)
+    .catch(() => alert("Camera permission denied"))
+
+function captureFace() {
+
+    if (!video.videoWidth) {
+        alert("Camera not ready")
+        return
+    }
+
+    captureBtn.disabled = true
+
+    const canvas = document.createElement("canvas")
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    const ctx = canvas.getContext("2d")
+    ctx.drawImage(video, 0, 0)
+
+    canvas.toBlob(function (blob) {
+
+        const file = new File([blob], "face.jpg", { type: "image/jpeg" })
+
+        const container = new DataTransfer()
+        container.items.add(file)
+        fileInput.files = container.files
+
+        preview.src = URL.createObjectURL(blob)
+        preview.style.display = "block"
+
+        status.innerHTML = "Checking face..."
+        status.style.color = "black"
+
+        const formData = new FormData()
+        formData.append("file", file)
+
+        fetch("/teacher/check-face", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            captureBtn.disabled = false
+
+            if (data.multiple_faces) {
+                status.innerHTML = "⚠ Multiple faces detected"
+                status.style.color = "red"
+                updateBtn.disabled = true
+                return
+            }
+
+            if (!data.face_detected) {
+                status.innerHTML = "⚠ No face detected"
+                status.style.color = "red"
+                updateBtn.disabled = true
+                return
+            }
+
+            if (!data.eyes) {
+                status.innerHTML = "⚠ Look at camera properly"
+                status.style.color = "orange"
+                updateBtn.disabled = true
+                return
+            }
+
+            if (data.reason === "face_too_small") {
+                status.innerHTML = "⚠ Move closer"
+                status.style.color = "orange"
+                updateBtn.disabled = true
+                return
+            }
+
+            status.innerHTML = "✅ Face Ready to Update"
+            status.style.color = "green"
+            updateBtn.disabled = false
+        })
+
+        .catch(() => {
+            captureBtn.disabled = false
+            status.innerHTML = "Server error"
+            status.style.color = "red"
+        })
+
+    })
+}
+</script>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    margin-left: 180px;
+    margin-top: 50px;
+}
+
+/* CENTER FULL CARD */
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.card {
+    background: white;
+    width: 500px;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+/* VIDEO */
+video {
+    width: 100%;
+    border-radius: 10px;
+    border: 3px solid #2563eb;
+}
+
+/* BUTTON */
+.capture-btn {
+    background: #f59e0b;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: none;
+}
+
+/* PREVIEW */
+.preview {
+    margin-top: 10px;
+    width: 120px;
+    border-radius: 10px;
+}
+
+/* STATUS */
+.status {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* BOTTOM BUTTONS */
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.update-btn {
+    background: #16a34a;
+    color: white;
+    padding: 12px;
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+}
+
+.cancel-btn {
+    background: #dc2626;
+    color: white;
+    padding: 12px;
+    flex: 1;
+    text-decoration: none;
+    border-radius: 8px;
+    text-align: center;
+}
+
+</style>
+
+</div>
+</body>
+</html>

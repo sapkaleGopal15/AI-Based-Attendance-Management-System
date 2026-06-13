@@ -40,6 +40,11 @@
                     <a th:href="@{'/hod/update-teacher/' + ${t.id}}" class="btn-update">
                         Update Teacher
                     </a>
+                    <form th:action="@{'/hod/delete-teacher/' + ${t.id}}" method="post" 
+                        onsubmit="return confirm('Are you sure you want to delete this Teacher?');"
+                        style="display:inline;">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
                 </div>
 
             </div>
@@ -59,6 +64,7 @@
 
 body {
     background: #f4f6f9;
+    margin-top: 50px;
 }
 
 .container {
@@ -130,8 +136,8 @@ body {
 .btn-update {
     display: inline-block;
     padding: 8px 15px;
-    background: #2563eb;
-    color: white;
+    background: none;
+    color: rgb(26, 11, 233);
     border-radius: 6px;
     text-decoration: none;
     font-size: 14px;
@@ -139,6 +145,23 @@ body {
 
 .btn-update:hover {
     background: #1e40af;
+    color: white;
+}
+
+.btn-delete {
+    padding: 12px 15px;
+    color: rgb(253, 17, 17);
+    background: none;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+    color: white;
 }
 
 .toast {

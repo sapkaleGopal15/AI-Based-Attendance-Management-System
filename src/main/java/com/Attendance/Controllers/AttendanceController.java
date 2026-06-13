@@ -6,6 +6,7 @@ import com.Attendance.Entities.Student;
 import com.Attendance.Entities.Teacher;
 import com.Attendance.Repositories.AttendanceRepository;
 import com.Attendance.Repositories.LectureRepository;
+import com.Attendance.Services.AttendanceService;
 import com.Attendance.Services.LectureService;
 import com.Attendance.Services.StudentService;
 import com.Attendance.Services.TeacherService;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -41,6 +43,9 @@ public class AttendanceController {
 
     @Autowired
     private AttendanceRepository attendanceRepository;
+
+    @Autowired 
+    private AttendanceService attendanceService;
 
     @Autowired
     private LectureRepository lectureRepository;
@@ -84,6 +89,21 @@ public class AttendanceController {
 
             ResponseEntity<Map> resp = rt.postForEntity(faceServiceUrl + "/recognize", request, Map.class);
 
+            // {
+            //     "faces": [
+            //         {
+            //         "student_id": 1,
+            //         "name": "Gopal",
+            //         "x": 100,
+            //         "y": 120,
+            //         "w": 80,
+            //         "h": 80,
+            //         "eyes_open": true
+            //         }
+            //     ]
+            // }
+
+
             if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(Map.of("error", "face service error"));
@@ -94,62 +114,85 @@ public class AttendanceController {
             if (faces == null) faces = Collections.emptyList();
 
             List<Map<String,Object>> outFaces = new ArrayList<>();
-            LocalDate today = LocalDate.now();
 
             for (Map<String, Object> f : faces) {
-                Map<String, Object> out = new HashMap<>();
 
-                Object sidObj = f.get("student_id");
-                Integer studentId = sidObj == null ? null : Integer.valueOf(sidObj.toString());
-                String name = f.get("name") == null ? "Unknown" : f.get("name").toString();
-                Double score = f.get("score") == null ? null : Double.valueOf(f.get("score").toString());
+            Map<String, Object> out = new HashMap<>();
 
-                out.put("x", f.get("x"));
-                out.put("y", f.get("y"));
-                out.put("w", f.get("w"));
-                out.put("h", f.get("h"));
-                out.put("score", score);
+            Integer studentId = f.get("student_id") == null ? null : Integer.valueOf(f.get("student_id").toString());
+            String name = f.get("name") == null ? "Unknown" : f.get("name").toString();
 
-                boolean hasEyes = Boolean.TRUE.equals(f.get("eyes_open"));
+            out.put("x", f.get("x"));
+            out.put("y", f.get("y"));
+            out.put("w", f.get("w"));
+            out.put("h", f.get("h"));
 
-                if (!hasEyes) {
-                    out.put("studentId", null);
-                    out.put("name", "No eyes detected");
-                    out.put("status", "NO_EYES");
-                } else if (studentId != null) {
-                    out.put("studentId", studentId);
+            boolean hasEyes = Boolean.TRUE.equals(f.get("eyes_open"));
+            
+            if (!hasEyes) {
+                out.put("name", "No eyes detected");
+                out.put("status", "NO_EYES");
+            }
+            
+            else if (studentId != null) {
+
+                Attendance att = attendanceService
+                        .findByStudentIdAndLectureId(studentId, lectureId);
+                System.out.println("\n\nAttendance record for studentId " + studentId + " and lectureId " + lectureId + ": " + att + "\n\n");
+                if (att == null) {
+                    // Attendance attendance = attendanceService.findByLectureId(lectureId);
+                    // attendance.setStatus("PRESENT");
+                    // attendance.setTime(LocalTime.now());
+                    // attendanceRepository.save(attendance);
+                    // out.put("name", name);
+                    // out.put("status", "PRESENT");
+
+                    Attendance attendance = new Attendance();
+
+                    attendance.setStudent(studentService.findById(studentId));
+
+                    attendance.setLecture(lectureService.findById(lectureId));
+
+                    attendance.setSubject(lecture.getSubject());
+
+                    attendance.setTeacher(logedTeacher);
+
+                    attendance.setStatus("PRESENT");
+
+                    attendance.setDate(LocalDate.now());
+
+                    attendance.setTime(LocalTime.now());
+
+                    attendanceRepository.save(attendance);
+
                     out.put("name", name);
 
-                    Attendance att = attendanceRepository
-                        .findByStudentIdAndLectureId(studentId, lectureId);
-
-                    if(att != null){
-
-                        if(att.getStatus().equals("PRESENT")){
-                            out.put("status","ALREADY_MARKED");
-                        } else {
-
-                            Student student2 = studentService.findById(studentId);
-                            
-                            att.setTeacher(logedTeacher);
-                            att.setStudent(student2);
-                            att.setDate(today);
-                            att.setStatus("PRESENT");
-                            att.setTime(LocalTime.now());
-                            attendances.add(attendanceRepository.save(att));
-                            out.put("status","PRESENT");
-                        }
-
-                    }
-
-                } else {
-                    out.put("studentId", null);
-                    out.put("name", "Not registered");
-                    out.put("status", "NOT_REGISTERED");
+                    out.put("status", "PRESENT");
                 }
 
-                outFaces.add(out);
+                else if ("PRESENT".equals(att.getStatus())) {
+                    out.put("name", name);
+                    out.put("status", "ALREADY_MARKED");
+                }
+
+                else {
+                   
+                    att.setStatus("PRESENT");
+                    att.setTime(LocalTime.now());
+                    attendanceRepository.save(att);
+
+                    out.put("name", name);
+                    out.put("status", "PRESENT");
+                }
             }
+
+            else {
+                out.put("name", "Not registered");
+                out.put("status", "NOT_REGISTERED");
+            }
+
+            outFaces.add(out);
+        }
 
             lecture.setAttendances(attendances);
 
@@ -167,7 +210,6 @@ public class AttendanceController {
     public ResponseEntity<?> startAttendance(
             @RequestParam String subject,
             @RequestParam String classroom,
-            @RequestParam String mode,
             HttpSession session) {
 
         Integer teacherId = (Integer) session.getAttribute("logedTeacher");
@@ -176,28 +218,7 @@ public class AttendanceController {
         LocalDate today = LocalDate.now();
 
         Lecture lecture;
-
-        if(mode.equals("CONTINUE")) {
-
-            lecture = lectureRepository
-                    .findTopByTeacherIdAndDateOrderByStartTimeDesc(teacherId, today);
-
-            List<Attendance> attendanceList =
-                    attendanceRepository.findByLecture(lecture);
-
-            if(lecture == null) {
-                return ResponseEntity.badRequest().body("No previous lecture found");
-            }
-
-            return ResponseEntity.ok(Map.of(
-                    "message","Continuing previous attendance",
-                    "lectureId", lecture.getId(),
-                    "students", lecture.getStudents(),
-                    "attendance", attendanceList
-            ));
-
-        } else {
-
+      
             List<Student> students = studentService.findByCollegeAndDepartmentAndClassroom(teacher.getCollege(), teacher.getDepartment(), classroom);
             
             lecture = new Lecture();
@@ -224,7 +245,61 @@ public class AttendanceController {
                     "message","New attendance started",
                     "lectureId", lecture.getId()
             ));
+        
+    }
+
+    @PostMapping("/start/cont")
+    public ResponseEntity<?> startContAttendance(HttpSession session) {
+
+        Integer teacherId = (Integer) session.getAttribute("logedTeacher");
+
+        LocalDate today = LocalDate.now();
+
+        Lecture lecture = lectureRepository
+                .findTopByTeacherIdAndDateOrderByStartTimeDesc(teacherId, today);
+
+        // Integer teacherId = (Integer) session.getAttribute("logedTeacher");
+
+        // LocalDate today = LocalDate.now();
+        // LocalTime now = LocalTime.now();
+        // LocalTime oneHourAgo = now.minusHours(1);
+
+        // Lecture lecture = lectureRepository
+        //         .findLastOneHourLatestLecture(teacherId, today, oneHourAgo, now)
+        //         .stream()
+        //         .findFirst()
+        //         .orElse(null);
+
+        if (lecture == null) {
+            return ResponseEntity.ok(Map.of("error", "No previous lecture found"));
         }
+
+        List<Attendance> attendanceList =
+                attendanceRepository.findByLecture(lecture);
+
+        List<Map<String, Object>> students = lecture.getStudents().stream()
+            .map(s -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", s.getId());
+                map.put("name", s.getName());
+                return map;
+            })
+            .collect(Collectors.toList());
+
+        List<Map<String, Object>> attendance = attendanceList.stream()
+            .map(a -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("studentId", a.getStudent().getId());
+                map.put("status", a.getStatus());
+                return map;
+            })
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of(
+                "lectureId", lecture.getId(),
+                "students", students,
+                "attendance", attendance
+        ));
     }
     
 }

@@ -57,7 +57,7 @@
             </div>
 
             <div class="card">
-                <h3>[[${college.date}]]</h3>
+                <h3 th:text="${#temporals.format(college.date, 'dd-MM-yyyy')}"></h3>
                 <p>Established</p>
             </div>
 
@@ -108,7 +108,7 @@
     <style>
         .main-content {
             margin-left: 190px;
-            margin-top: 30px;
+            margin-top: 50px;
             padding: 25px;
         }
 

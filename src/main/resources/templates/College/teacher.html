@@ -34,6 +34,7 @@
                         <th>Name</th>
                         <th>Department</th>
                         <th>Mobile</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -44,6 +45,18 @@
                         <td>[[${s.name}]]</td>
                         <td>[[${s.department}]]</td>
                         <td>[[${s.contact}]]</td>
+                        <td>
+                            <form th:action="@{'/college/toggle-status/' + ${s.id}}" method="post">
+                                
+                                <label class="switch">
+                                    <input type="checkbox" 
+                                        th:checked="${s.active}" 
+                                        onchange="this.form.submit()">
+                                    <span class="slider"></span>
+                                </label>
+
+                            </form>
+                        </td>
                         <td>
                             <a th:href="@{'/hod/student-view-attendance/' + ${s.id}}" onclick="return confirm('Are you suru, you want to delete member')" class="btn-view">
                                 Delete
@@ -72,6 +85,7 @@
 
 body {
     background: #f4f6f9;
+    margin-top: 50px;
 }
 
 .container {
@@ -157,6 +171,56 @@ tbody tr:hover {
 .btn-view:hover {
     background: #f70d0d;
     color: #fff;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Background */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #dc2626; /* RED = Inactive */
+    border-radius: 30px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: 0.4s;
+}
+
+/* Circle */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+/* ON state */
+.switch input:checked + .slider {
+    background-color: #16a34a; /* GREEN = Active */
+}
+
+/* Move circle */
+.switch input:checked + .slider:before {
+    transform: translateX(24px);
 }
 
 .toast {

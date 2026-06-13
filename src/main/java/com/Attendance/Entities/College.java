@@ -40,9 +40,15 @@ public class College {
 
     private String university;
 
+    private String role;
+
     private String address;
 
     private String password;
+
+    private boolean active;
+    
+    private boolean verified;
 
     @OneToMany(mappedBy = "college", cascade = CascadeType.ALL)
     private List<Teacher> teachers = new ArrayList<>();

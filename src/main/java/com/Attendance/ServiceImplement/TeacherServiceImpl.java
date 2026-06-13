@@ -18,4 +18,5 @@ public interface TeacherServiceImpl {
     List<Teacher> findByDepartment(Integer id);
     List<Teacher> findByCollegeAndRole(College college, String role);
     List<Teacher> findByCollege(College college);
+    void deleteById(Integer id);
 }

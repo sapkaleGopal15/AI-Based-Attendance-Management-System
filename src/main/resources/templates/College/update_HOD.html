@@ -33,6 +33,7 @@
             <form th:action="@{/college/do-update-teacher}" method="post" th:object="${hod}">
 
                 <input type="hidden" th:field="*{id}"> 
+                <input type="hidden" th:field="*{verified}">
                 <div class="input-box">
                     <label>Full Name</label>
                     <input type="text" th:field="*{name}" placeholder="Enter HOD full name" required>
@@ -56,9 +57,31 @@
                     <select th:field="*{role}" id="">
                         <option value="">Select Teacher Role</option>
                         <option value="HOD">Head of Department</option>
-                        <option value="teacher">Faculty Member</option>
+                        <option value="TEACHER">Faculty Member</option>
                     </select>
                     <p class="hasErrors" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></p>
+                </div>
+
+                <div class="input-box">
+                    <label>Status</label>
+
+                    <div class="status-group">
+
+                        <!-- Active -->
+                        <label class="status-option active-option">
+                            <input type="radio" th:field="*{active}" value="true"/>
+                            <span class="custom-radio"></span>
+                            Active
+                        </label>
+
+                        <!-- Inactive -->
+                        <label class="status-option inactive-option">
+                            <input type="radio" th:field="*{active}" value="false"/>
+                            <span class="custom-radio"></span>
+                            Inactive
+                        </label>
+
+                    </div>
                 </div>
 
                 <div class="input-box">
@@ -68,7 +91,7 @@
                 </div>
 
                 <button type="submit" class="copilot-btn">
-                    <i class="fas fa-user-plus"></i> Register
+                    <i class="fas fa-user-plus"></i> Update
                 </button>
 
             </form>
@@ -97,6 +120,7 @@
 body {
     background-color: var(--bg-light);
     color: var(--text-main);
+    margin-top: 50px;
 }
 
 .login-section {
@@ -141,6 +165,83 @@ body {
 .input-box input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+}
+.status-group {
+    display: flex;
+    gap: 25px;
+    margin-top: 8px;
+}
+
+/* Base style */
+.status-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    position: relative;
+}
+
+/* Hide default radio */
+.status-option input {
+    display: none;
+}
+
+/* Custom radio */
+.custom-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    margin-right: 8px;
+    position: relative;
+    transition: 0.3s;
+}
+
+/* GREEN - Active */
+.active-option {
+    color: #16a34a;
+}
+
+.active-option input:checked + .custom-radio {
+    border-color: #16a34a;
+}
+
+.active-option input:checked + .custom-radio::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    background: #16a34a;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* RED - Inactive */
+.inactive-option {
+    color: #dc2626;
+}
+
+.inactive-option input:checked + .custom-radio {
+    border-color: #dc2626;
+}
+
+.inactive-option input:checked + .custom-radio::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    background: #dc2626;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Hover effect */
+.status-option:hover .custom-radio {
+    transform: scale(1.1);
 }
 
 .copilot-btn {

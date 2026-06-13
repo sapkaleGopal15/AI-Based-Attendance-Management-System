@@ -110,4 +110,17 @@ public class StudentService implements StudentServiceImpl{
         return studentRepository.findByCollegeAndDepartment(teacher.getCollege(), teacher.getDepartment());
     }
 
+    @Override
+    public Boolean updateFaceById(Student student, Teacher teacher, String embedding) {
+        
+        student.setEmbedding(embedding);
+        student.setTeacher(teacher);
+        Student updatedStudent = studentRepository.save(student);
+        if (ObjectUtils.isEmpty(updatedStudent)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }

@@ -3,6 +3,8 @@ package com.Attendance.Controllers;
 
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.*;
@@ -34,6 +36,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/teacher")
+// @PreAuthorize("hasRole('teacher')")
 public class StudentsController {
 
     @Autowired
@@ -52,6 +55,11 @@ public class StudentsController {
 
     @GetMapping("/")
     public String dashboard(Model model, HttpSession session) {
+
+        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // String email = auth.getName();
+
+        // Teacher teacher = teacherService.findByEmail(email);
 
         if (session.getAttribute("logedTeacher")==(null)) {
             session.setAttribute("errorMsg", "Somathing went wromg !");
@@ -295,9 +303,22 @@ public class StudentsController {
     }
 
 
+    @GetMapping("/student-face-update/{id}")
+    public String studentFaceUpdate(@PathVariable Integer id, Model model, HttpSession session) {
+        if (session.getAttribute("logedTeacher")==(null)) {
+            session.setAttribute("errorMsg", "Somathing went wromg !");
+            return "redirect:/login";
+        }
+        Student student = studentService.findById(id);
+        model.addAttribute("student", student);
+        model.addAttribute("showSidebar", true);
+        model.addAttribute("paramValue", "students");
+        return "Teachers/student_face_update";
+    }
 
 
-    // ========================= Proccessing ===============================
+
+    // ================================ Proccessing ==================================================================================
     @PostMapping("/student-update")
     public String studentDoUpdate(@Valid @ModelAttribute StudentDto studentDto, BindingResult result, RedirectAttributes redirectAttributes, Model model, HttpSession session) {
         
@@ -324,6 +345,114 @@ public class StudentsController {
             return "Teachers/student_update";
         }
 
+    }
+
+    @PostMapping("/update-face")
+    public String updateFace(
+            @RequestParam Integer studentId,
+            @RequestParam MultipartFile file,
+            Model model,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+
+            RestTemplate rt = new RestTemplate();
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", file.getResource());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            HttpEntity<MultiValueMap<String, Object>> request =
+                    new HttpEntity<>(body, headers);
+
+            ResponseEntity<Map> response =
+                    rt.postForEntity(faceServiceUrl + "/generate-embedding", request, Map.class);
+
+            Map<String, Object> bodyMap = response.getBody();
+            
+            // VALIDATION
+            if (bodyMap == null || !(Boolean) bodyMap.getOrDefault("face_detected", false)) {
+                redirectAttributes.addFlashAttribute("errorMsg", "⚠ Face not detected");
+                return "redirect:/teacher/student-face-update/" + studentId;
+            }
+            
+            if ((Boolean) bodyMap.getOrDefault("multiple_faces", false)) {
+                redirectAttributes.addFlashAttribute("errorMsg", "⚠ Multiple faces detected");
+                return "redirect:/teacher/student-face-update/" + studentId;            
+            }
+            // if (!(Boolean) bodyMap.getOrDefault("quality_ok", false)) {
+            //     redirectAttributes.addFlashAttribute("errorMsg", "⚠ Face quality issue");
+            //     return "redirect:/teacher/student-face-update/" + studentId;
+            // }
+            //  GET EMBEDDING
+            Object embObj = bodyMap.get("embedding");
+
+            ObjectMapper om = new ObjectMapper();
+
+            double[] newEmbedding = om.convertValue(embObj, double[].class);
+
+            if (newEmbedding == null || newEmbedding.length == 0) {
+                redirectAttributes.addFlashAttribute("errorMsg", "⚠ Invalid embedding");
+                return "redirect:/teacher/student-face-update/" + studentId;
+            }
+
+            newEmbedding = normalize(newEmbedding);
+
+            String newEmbeddingJson = om.writeValueAsString(newEmbedding);
+
+            // DUPLICATE CHECK
+            List<Student> allStudents = studentService.findAll();
+
+            for (Student existing : allStudents) {
+
+                // skip same student
+                if (existing.getId().equals(studentId)) continue;
+
+                if (existing.getEmbedding() == null || existing.getEmbedding().isBlank()) {
+                    continue;
+                }
+
+                double[] existingEmbedding =
+                        om.readValue(existing.getEmbedding(), double[].class);
+
+                existingEmbedding = normalize(existingEmbedding);
+
+                double similarity = cosineSimilarity(newEmbedding, existingEmbedding);
+
+                if (similarity >= 0.80) {
+                    redirectAttributes.addFlashAttribute("errorMsg", "⚠ Face already registered as " + existing.getName());
+                    return "redirect:/teacher/student-face-update/" + studentId;
+                }
+            }
+
+            // UPDATE STUDENT FACE
+            Student student = studentService.findById(studentId);
+
+            if (student == null) {
+                redirectAttributes.addFlashAttribute("errorMsg", "Student not found");
+                return "redirect:/teacher/student-face-update/" + studentId;
+            }
+
+
+            Boolean updated = studentService.updateFaceById(student, teacherService.findById((Integer) session.getAttribute("logedTeacher")), newEmbeddingJson);
+            System.out.println("Updating face for student ID: " + studentId + ", Similarity with existing faces: " + newEmbeddingJson);
+            if (updated) {
+                redirectAttributes.addFlashAttribute("successMsg", "✅ Face updated successfully as "+student.getName());
+                return "redirect:/teacher/all-students";
+            } else {
+                redirectAttributes.addFlashAttribute("errorMsg", "❌ Failed to update face");
+                return "redirect:/teacher/student-face-update/" + studentId;
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMsg", "Server error while updating face");
+            return "redirect:/teacher/student-face-update/" + studentId;
+        }
     }
 
     @PostMapping("/do-update-password")
@@ -438,6 +567,14 @@ public class StudentsController {
 
         Map<String, Object> bodyMap = response.getBody();
 
+        // {
+        //     "face_detected": true,
+        //     "eyes": true,
+        //     "multiple_faces": false,
+        //     "quality_ok": true,
+        //     "embedding": [0.12, 0.98, ...]
+        // }
+
         if (bodyMap == null) {
             return Map.of(
                     "face_detected", false
@@ -478,6 +615,7 @@ public class StudentsController {
 
         ObjectMapper om = new ObjectMapper();
 
+        // Json array to double[]
         double[] newEmbedding =
                 om.readValue(
                         om.writeValueAsString(bodyMap.get("embedding")),
@@ -530,7 +668,8 @@ public class StudentsController {
             @RequestParam String classroom,
             @RequestParam MultipartFile file,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
         try {
             RestTemplate rt = new RestTemplate();
@@ -623,9 +762,9 @@ public class StudentsController {
                 return "Teachers/add_student";
             }
 
-            model.addAttribute("successMsg", "✅ Student Registered Successfully");
-            model.addAttribute("showSidebar", true);
-            return "Teachers/add_student";
+            redirectAttributes.addFlashAttribute("successMsg", "✅ Student Registered Successfully");
+            redirectAttributes.addFlashAttribute("showSidebar", true);
+            return "redirect:/teachers/add_student";
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -55,7 +55,7 @@
                     <select th:field="*{role}" id="">
                         <option value="">Select Teacher Role</option>
                         <option value="HOD">Head of Department</option>
-                        <option value="teacher">Faculty Member</option>
+                        <option value="TEACHER">Faculty Member</option>
                     </select>
                     <p class="hasErrors" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></p>
                 </div>
@@ -108,6 +108,7 @@
 body {
     background-color: var(--bg-light);
     color: var(--text-main);
+    margin-top: 50px;
 }
 
 .login-section {

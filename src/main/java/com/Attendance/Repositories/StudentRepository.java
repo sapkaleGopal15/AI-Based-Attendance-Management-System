@@ -3,6 +3,7 @@ package com.Attendance.Repositories;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.Attendance.Entities.Lecture;
@@ -20,4 +21,5 @@ public interface StudentRepository extends JpaRepository<Student,Integer>{
 
     Student findByAttendances(Attendance attendances);
     List<Student> findByCollegeAndDepartment(College college, String department);
+
 }

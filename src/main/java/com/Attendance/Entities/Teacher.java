@@ -41,6 +41,10 @@ public class Teacher {
 
     private String contact;
 
+    private boolean active;
+    
+    private boolean verified;
+
     @ManyToOne
     @JoinColumn(name = "college_id")
     private College college;
@@ -53,4 +57,5 @@ public class Teacher {
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
     private List<Lecture> lectures = new ArrayList<>();
+
 }

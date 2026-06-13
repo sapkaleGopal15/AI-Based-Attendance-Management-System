@@ -15,7 +15,7 @@
         <div class="main-content">
 
             <div class="page-header">
-                <h1>✏️ Edit Student</h1>
+                <h1>✏️ Update Student</h1>
             </div>
 
             <div class="form-card">
@@ -65,13 +65,18 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="save-btn">Update Student</button>
-                        <a th:href="@{/teacher/all-students}" class="cancel-btn">Cancel</a>
+                        <div class="button1">
+                            <button type="submit" class="save-btn">Update Student</button>
+                            <a th:href="@{/teacher/all-students}" class="cancel-btn">Cancel</a>
+                        </div>
+                        <div class="buttom2">
+                            <a th:href="@{'/teacher/student-face-update/'+${id}}" class="face-btn">Update Face</a>
+                        </div>
                     </div>
-
+                    
                 </form>
 
-            </div>
+            </div>  
 
         </div>
         <style>
@@ -97,7 +102,7 @@
         }
             .main-content {
                 margin-left: 180px;
-                margin-top: 10px;
+                margin-top: 50px;
                 padding: 25px;
             }
 
@@ -163,6 +168,19 @@
 
             .form-actions {
                 margin-top: 20px;
+                display: flex;
+                justify-content: space-between; /* left & right separation */
+                align-items: center;
+            }
+
+            .button1 {
+                display: flex;
+                align-items: center;
+            }
+
+            .buttom2 {
+                display: flex;
+                justify-content: flex-end;
             }
 
             .save-btn {
@@ -176,6 +194,19 @@
 
             .save-btn:hover {
                 background: #15803d;
+            }
+
+            .face-btn {
+                background: #c12525;
+                color: white;
+                padding: 6px 18px;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+            }
+
+            .face-btn:hover {
+                background: #971b1b;
             }
 
             .cancel-btn {
