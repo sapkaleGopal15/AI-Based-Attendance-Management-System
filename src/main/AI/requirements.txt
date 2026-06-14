@@ -4,3 +4,4 @@ facenet-pytorch
 Pillow==11.3.0
 numpy
 opencv-python
+mediapipe==0.10.14
