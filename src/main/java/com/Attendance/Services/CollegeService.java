@@ -7,7 +7,9 @@ import org.springframework.util.ObjectUtils;
 
 import com.Attendance.DTO.CollegeDto;
 import com.Attendance.Entities.College;
+import com.Attendance.Entities.Teacher;
 import com.Attendance.Repositories.CollegeRepository;
+import com.Attendance.Repositories.TeacherRepository;
 import com.Attendance.ServiceImplement.CollegeServiceImpl;
 
 @Service
@@ -17,11 +19,29 @@ public class CollegeService implements CollegeServiceImpl{
     private CollegeRepository collegeRepository;
 
     @Autowired
+    private TeacherRepository teacherRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public College findByCollegeId(String collegeId) {
         return collegeRepository.findByCollegeId(collegeId);
+    }
+
+    @Override
+    public College findByEmail(String email) {
+        College college = collegeRepository.findByEmail(email);
+        if (ObjectUtils.isEmpty(college)) {
+            Teacher teacher = teacherRepository.findByEmail(email);
+            if (!ObjectUtils.isEmpty(teacher)) {
+                return teacher.getCollege();
+            } else {
+                return null;
+            }
+        } else {
+            return college;
+        }
     }
 
     @Override
@@ -37,7 +57,7 @@ public class CollegeService implements CollegeServiceImpl{
             .email(collegeDto.getEmail())
             .date(collegeDto.getDate())
             .active(true)
-            .verified(true)
+            .verified(collegeDto.getVerify())
             .build();
 
         College college2 = collegeRepository.save(college);

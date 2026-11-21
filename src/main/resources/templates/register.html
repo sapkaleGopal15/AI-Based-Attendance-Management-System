@@ -21,7 +21,7 @@
         <div class="form-box">
             <h2>🏫 College Registration</h2>
 
-            <form th:action="@{/do-register}" th:object="${collegeDto}" method="post" novalidate>
+            <form th:action="@{/do-register}" id="registrationForm" th:object="${collegeDto}" method="post" novalidate>
 
                 <div class="input-group">
                     <label>College/School Name</label>
@@ -49,7 +49,7 @@
 
                 <div class="input-group">
                     <label>College/School Email</label>
-                    <input type="email" th:field="*{email}" placeholder="Enter email" required>
+                    <input type="email"  id="email" th:field="*{email}" placeholder="Enter email" required>
                     <p class="hasError" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
                 </div>
 
@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Principle</label>
+                    <label>Principal</label>
                     <input type="text" th:field="*{principle}" placeholder="Enter principle name" required>
                     <p class="hasError" th:if="${#fields.hasErrors('principle')}" th:errors="*{principle}"></p>
                 </div>
@@ -77,12 +77,15 @@
                     <p class="hasError" th:if="${#fields.hasErrors('confirmPass')}" th:errors="*{confirmPass}"></p>
                 </div>
 
-                <button type="submit" class="btn">Register</button>
+                <button type="submit" class="btn">Verify</button>
 
             </form>
         </div>
 
     </div>
+
+
+    
 
 <style>
 * {

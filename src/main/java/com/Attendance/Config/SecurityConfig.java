@@ -48,6 +48,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/",
+                    "/system/**",
                     "/register",
                     "/home",
                     "/about",
@@ -62,7 +63,10 @@ public class SecurityConfig {
                     "/do-register",
                     "/do-forgot-password",
                     "/do-college-forgot-password",
-                    "/do-hod-forgot-password"
+                    "/do-hod-forgot-password",
+                    "/email-otp-verification/verify-otp",
+                    "/email-otp-verification/send-otp",
+                    "/email-otp-verification/re-send-otp"
                 ).permitAll()
 
                 .requestMatchers("/teacher/**").hasRole("TEACHER")

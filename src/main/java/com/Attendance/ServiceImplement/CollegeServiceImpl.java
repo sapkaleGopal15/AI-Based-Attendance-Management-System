@@ -6,6 +6,7 @@ import com.Attendance.Entities.College;
 public interface CollegeServiceImpl {
 
     College findByCollegeId(String collegeId);
+    College findByEmail(String email);
 
     Boolean saveCollege(CollegeDto collegeDto);
 

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{parent :: index(~{::#content}, ~{::title})}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>College Registration | OTP Verification</title>
+</head>
+
+<body>
+
+<div id="content">
+
+    <div class="otp-page">
+        <th:block th:if="${verification == 'verification'}">
+            <div class="otp-container">
+
+                <!-- तुझा पूर्ण OTP verification code इथे -->
+
+                <div class="otp-icon">
+                    ✉
+                </div>
+
+                <h1>Verified Successfully</h1>
+
+                <div class="email-display"
+                    th:text="${email}">
+                </div>
+
+                    <p class="message2 error-message2"
+                    th:if="${errorMsg1}"
+                    th:text="${errorMsg1}">
+                    </p>
+
+                    <p class="message2 success-message2"
+                    th:if="${successMsg1}"
+                    th:text="${successMsg1}">
+                    </p>
+
+                    <p class="message2 error-message2"
+                    th:if="${errorMsg2}"
+                    th:text="${errorMsg2}">
+                    </p>
+
+                    <p class="message2 success-message2"
+                    th:if="${successMsg2}"
+                    th:text="${successMsg2}">
+                    </p>
+
+                    <p class="message2 error-message2"
+                    th:if="${errorMsg3}"
+                    th:text="${errorMsg3}">
+                    </p>
+
+                    <p class="message2 success-message2"
+                    th:if="${successMsg3}"
+                    th:text="${successMsg3}">
+                    </p>
+
+                <div class="back-section">
+
+                    <a th:href="@{/}"
+                    class="back-link">
+                        ← Back to Home
+                    </a>
+
+                </div>
+
+            </div>
+        </th:block>
+
+
+        <th:block th:unless="${verification == 'verification'}">
+            
+            <div class="otp-container">
+
+                <!-- तुझा पूर्ण OTP verification code इथे -->
+
+                <div class="otp-icon">
+                    ✉
+                </div>
+
+                <h1>Verify Your Email</h1>
+
+                <p class="otp-description">
+                    Enter the 6-digit OTP sent to your registered email address.
+                </p>
+
+                <div class="email-display"
+                    th:text="${email}">
+                </div>
+
+                <form th:action="@{/email-otp-verification/verify-otp}" method="post">
+
+                    <input
+                        type="text"
+                        name="otp"
+                        class="otp-input"
+                        maxlength="6"
+                        minlength="6"
+                        pattern="[0-9]{6}"
+                        inputmode="numeric"
+                        placeholder="Enter OTP">
+
+                    <p class="message error-message"
+                    th:if="${errorMsg}"
+                    th:text="${errorMsg}">
+                    </p>
+
+                    <p class="message success-message"
+                    th:if="${successMsg}"
+                    th:text="${successMsg}">
+                    </p>
+
+                    <button type="submit" class="verify-btn">
+                        Verify OTP
+                    </button>
+
+                </form>
+
+                <div class="resend-section">
+
+                    <span class="resend-label">
+                        Didn't receive the OTP?
+                    </span>
+
+                    <!-- Countdown -->
+                    <span id="timerText" class="timer">
+                        Resend OTP available in
+                        <strong id="countdown">60</strong>s
+                    </span>
+
+                    <!-- Existing backend resend endpoint -->
+                    <form th:action="@{/email-otp-verification/re-send-otp}"
+                        method="get"
+                        id="resendForm">
+
+                        <input type="hidden"
+                            name="email"
+                            th:value="${email}">
+
+                        <button type="submit"
+                                class="resend-btn"
+                                id="resendBtn"
+                                disabled>
+
+                            Resend OTP
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <div class="back-section">
+
+                    <a th:href="@{/register}"
+                    class="back-link">
+                        ← Back to Registration
+                    </a>
+
+                </div>
+
+            </div>
+        </th:block>
+    </div>
+
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+
+/* ================================
+   PAGE BODY
+================================ */
+
+body {
+    background: #f5f7fb;
+    margin-top: 50px;
+}
+
+
+/* ================================
+   OTP MAIN AREA
+   Put otp-container inside this
+================================ */
+
+.otp-page {
+    width: 100%;
+
+    /* Navbar आणि footer च्या मध्ये available area */
+    min-height: calc(100vh - 150px);
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 40px 20px;
+}
+
+
+/* ================================
+   OTP CONTAINER
+================================ */
+
+.otp-container {
+
+    width: 100%;
+    max-width: 430px;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    padding: 40px 35px;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.12);
+
+    text-align: center;
+}
+
+
+/* ================================
+   OTP ICON
+================================ */
+
+.otp-icon {
+
+    width: 75px;
+    height: 75px;
+
+    margin: 0 auto 22px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eaf2ff;
+
+    color: #1668ec;
+
+    font-size: 34px;
+}
+
+
+/* ================================
+   TITLE
+================================ */
+
+.otp-container h1 {
+
+    font-size: 25px;
+
+    color: #222;
+
+    margin-bottom: 10px;
+}
+
+
+/* ================================
+   DESCRIPTION
+================================ */
+
+.otp-description {
+
+    color: #777;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    margin-bottom: 8px;
+}
+
+
+/* ================================
+   EMAIL
+================================ */
+
+.email-display {
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #1668ec;
+
+    margin-bottom: 25px;
+
+    word-break: break-word;
+}
+
+
+/* ================================
+   OTP INPUT
+================================ */
+
+.otp-input {
+
+    width: 100%;
+
+    height: 58px;
+
+    border: 2px solid #d9dee8;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    text-align: center;
+
+    font-size: 25px;
+
+    font-weight: 600;
+
+    letter-spacing: 10px;
+
+    color: #222;
+
+    transition: all 0.3s ease;
+}
+
+
+.otp-input:focus {
+
+    border-color: #1668ec;
+
+    box-shadow:
+        0 0 0 4px rgba(22, 104, 236, 0.10);
+}
+
+
+.otp-input::placeholder {
+
+    font-size: 14px;
+
+    letter-spacing: 0;
+
+    color: #aaa;
+}
+
+
+/* ================================
+   MESSAGE
+================================ */
+
+.message2 {
+
+    min-height: 20px;
+
+    margin-top: 10px;
+
+    margin-bottom: 10px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+}
+
+
+.error-message2 {
+
+    color: #dc2626;
+}
+
+
+.success-message2 {
+
+    color: #16a34a;
+}
+
+
+.message {
+
+    min-height: 20px;
+
+    margin-top: 10px;
+
+    margin-bottom: 10px;
+
+    font-size: 15px;
+
+    font-weight: 500;
+}
+
+
+.error-message {
+
+    color: #dc2626;
+}
+
+
+.success-message {
+
+    color: #16a34a;
+}
+
+
+/* ================================
+   VERIFY BUTTON
+================================ */
+
+.verify-btn {
+
+    width: 100%;
+
+    height: 48px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #1668ec;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+
+    margin-top: 5px;
+}
+
+
+.verify-btn:hover {
+
+    background: #0f4fc4;
+
+    transform: translateY(-1px);
+}
+
+
+.verify-btn:active {
+
+    transform: translateY(0);
+}
+
+/* ================================
+   RESEND OTP
+================================ */
+
+.resend-section {
+
+    margin-top: 22px;
+
+    font-size: 13px;
+
+    color: #777;
+
+    text-align: center;
+}
+
+
+.resend-label {
+    display: block;
+
+    margin-bottom: 6px;
+}
+
+
+.timer {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: #888;
+
+    margin-top: 5px;
+}
+
+
+.timer strong {
+
+    color: #1668ec;
+
+    font-size: 13px;
+}
+
+
+.resend-form {
+
+    margin-top: 8px;
+}
+
+
+.resend-btn {
+
+    border: none;
+
+    background: transparent;
+
+    color: #1668ec;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    padding: 5px 8px;
+
+    transition: 0.3s;
+}
+
+
+.resend-btn:hover {
+
+    text-decoration: underline;
+
+    color: #0f4fc4;
+}
+
+
+.resend-btn:disabled {
+
+    display: none;
+
+    cursor: not-allowed;
+}
+
+
+/* ================================
+   BACK
+================================ */
+
+.back-section {
+
+    margin-top: 25px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+
+.back-link {
+
+    text-decoration: none;
+
+    color: #666;
+
+    font-size: 13px;
+
+    transition: 0.3s;
+}
+
+
+.back-link:hover {
+
+    color: #1668ec;
+}
+
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 480px) {
+
+    .otp-page {
+
+        padding: 30px 15px;
+
+        min-height: calc(100vh - 130px);
+    }
+
+
+    .otp-container {
+
+        padding: 32px 22px;
+
+        border-radius: 15px;
+    }
+
+
+    .otp-container h1 {
+
+        font-size: 22px;
+    }
+
+
+    .otp-input {
+
+        height: 54px;
+
+        font-size: 22px;
+
+        letter-spacing: 8px;
+    }
+
+}
+
+</style>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const countdownElement =
+        document.getElementById("countdown");
+
+    const timerText =
+        document.getElementById("timerText");
+
+    const resendBtn =
+        document.getElementById("resendBtn");
+
+
+    if (!countdownElement || !timerText || !resendBtn) {
+        return;
+    }
+
+
+    let seconds = 60;
+
+
+    const timer = setInterval(function () {
+
+        seconds--;
+
+        countdownElement.textContent = seconds;
+
+
+        if (seconds <= 0) {
+
+            clearInterval(timer);
+
+
+            // Hide countdown
+            timerText.style.display = "none";
+
+
+            // Enable resend button
+            resendBtn.disabled = false;
+
+            resendBtn.style.display = "inline-block";
+
+        }
+
+    }, 1000);
+
+});
+
+</script>
+
+</div>
+
+</body>
+</html>

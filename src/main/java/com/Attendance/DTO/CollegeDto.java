@@ -52,4 +52,6 @@ public class CollegeDto {
 
     @NotBlank(message = "confirm password is required")
     private String confirmPass;
+
+    private Boolean verify;
 }

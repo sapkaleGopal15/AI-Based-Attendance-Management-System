@@ -10,4 +10,5 @@ import com.Attendance.Entities.College;
 public interface CollegeRepository extends JpaRepository<College, Integer>{
 
     College findByCollegeId(String collegeId);
+    College findByEmail(String email);
 }

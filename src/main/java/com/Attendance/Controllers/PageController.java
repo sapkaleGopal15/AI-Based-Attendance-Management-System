@@ -16,6 +16,7 @@ import com.Attendance.DTO.CollegeDto;
 import com.Attendance.Entities.College;
 import com.Attendance.Entities.Teacher;
 import com.Attendance.Services.CollegeService;
+import com.Attendance.Services.EmailService;
 import com.Attendance.Services.TeacherService;
 
 import jakarta.servlet.http.HttpSession;
@@ -106,7 +107,8 @@ public class PageController {
     // =================================== Proccessing ==========================================================
 
     @PostMapping("/do-register")
-    public String doRegister(@Valid @ModelAttribute CollegeDto collegeDto, BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+    public String doRegister(@Valid @ModelAttribute CollegeDto collegeDto, BindingResult result, RedirectAttributes redirectAttributes, Model model, HttpSession session) {
+
         if (result.hasErrors()) {
             return "register";
         }
@@ -117,20 +119,22 @@ public class PageController {
         }
 
         College college = collegeService.findByCollegeId(collegeDto.getCollegeId());
-
+        College collegeByEmail = collegeService.findByEmail(collegeDto.getEmail());
 
         if (!ObjectUtils.isEmpty(college)) {
             model.addAttribute("errorMsg", "College id already register !");
             return "register";
         }
 
-        if (collegeService.saveCollege(collegeDto)) {
-            redirectAttributes.addFlashAttribute("successMsg", "College Register successfull...");
-            return "redirect:/college-login";
-        } else {
-            model.addAttribute("errorMsg", "something went wrong !");
+        if (!ObjectUtils.isEmpty(collegeByEmail)) {
+            model.addAttribute("errorMsg", "College email already register !");
             return "register";
         }
+
+        session.setAttribute("verificationEmail", collegeDto.getEmail().trim().toLowerCase());
+        session.setAttribute("registeredCollegeDto", collegeDto);
+
+        return "redirect:/email-otp-verification/send-otp";
     }
 
     @PostMapping("/do-college-forgot-password")
